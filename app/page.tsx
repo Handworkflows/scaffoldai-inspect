@@ -1,65 +1,146 @@
-import Image from "next/image";
+const actions = [
+  {
+    title: "Neues Projekt",
+    description: "Eine neue Gerüstprüfung anlegen",
+    accent: "from-cyan-400 to-blue-500",
+    icon: (
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        className="h-8 w-8"
+      >
+        <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
+    title: "Projekte",
+    description: "Bestehende Prüfungen verwalten",
+    accent: "from-violet-400 to-fuchsia-500",
+    icon: (
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        className="h-8 w-8"
+      >
+        <path
+          d="M3.75 7.75h6l1.5 2h9v7.5a2 2 0 0 1-2 2H5.75a2 2 0 0 1-2-2v-9.5Z"
+          strokeLinejoin="round"
+        />
+        <path d="M3.75 9.75v-3a2 2 0 0 1 2-2h3l1.5 2h4" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
+    title: "Einstellungen",
+    description: "Anwendung individuell konfigurieren",
+    accent: "from-amber-300 to-orange-500",
+    icon: (
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        className="h-8 w-8"
+      >
+        <path
+          d="M12 15.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5Z"
+        />
+        <path
+          d="m19.1 13.4 1.15.9-1.8 3.1-1.35-.55a7.6 7.6 0 0 1-2.35 1.35l-.2 1.45h-3.6l-.2-1.45a7.6 7.6 0 0 1-2.35-1.35l-1.35.55-1.8-3.1 1.15-.9a7.8 7.8 0 0 1 0-2.7l-1.15-.9 1.8-3.1 1.35.55a7.6 7.6 0 0 1 2.35-1.35l.2-1.45h3.6l.2 1.45a7.6 7.6 0 0 1 2.35 1.35l1.35-.55 1.8 3.1-1.15.9a7.8 7.8 0 0 1 0 2.7Z"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main className="relative flex min-h-screen flex-1 overflow-hidden bg-[#070b14] text-white">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-[-12rem] top-[-10rem] h-[28rem] w-[28rem] rounded-full bg-cyan-500/10 blur-3xl" />
+        <div className="absolute bottom-[-14rem] right-[-10rem] h-[34rem] w-[34rem] rounded-full bg-violet-600/10 blur-3xl" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:linear-gradient(to_bottom,black,transparent_85%)]" />
+      </div>
+
+      <div className="relative mx-auto flex w-full max-w-7xl flex-col px-6 py-8 sm:px-10 sm:py-10 lg:px-16">
+        <header className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-300/20 bg-cyan-400/10 text-cyan-300 shadow-[0_0_24px_rgba(34,211,238,0.12)]">
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              className="h-6 w-6"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+              <path d="M6 3v18M18 3v18M4 7h16M4 17h16M8 7v10M16 7v10" />
+            </svg>
+          </div>
+          <span className="text-sm font-semibold tracking-[0.22em] text-slate-300 uppercase">
+            ScaffoldAI
+          </span>
+        </header>
+
+        <section className="flex flex-1 flex-col justify-center py-16 sm:py-24">
+          <div className="mb-10 max-w-3xl sm:mb-14">
+            <div className="mb-5 flex items-center gap-3 text-xs font-medium tracking-[0.24em] text-cyan-300 uppercase sm:text-sm">
+              <span className="h-px w-8 bg-cyan-300/70" />
+              Digitale Gerüstprüfung
+            </div>
+            <h1 className="text-4xl font-semibold tracking-[-0.04em] text-balance sm:text-6xl lg:text-7xl">
+              ScaffoldAI <span className="text-slate-500">Inspect</span>
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-7 text-slate-400 sm:text-lg">
+              Gerüstprüfungen übersichtlich, effizient und digital organisieren.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3 lg:gap-6">
+            {actions.map((action, index) => (
+              <button
+                key={action.title}
+                type="button"
+                className="group relative min-h-52 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] p-6 text-left shadow-2xl shadow-black/20 backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.075] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 sm:p-7"
+              >
+                <span
+                  className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${action.accent} opacity-70`}
+                />
+                <span className="absolute right-5 top-4 font-mono text-xs text-slate-600">
+                  0{index + 1}
+                </span>
+                <span
+                  className={`mb-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${action.accent} text-slate-950 shadow-lg transition duration-300 group-hover:scale-105`}
+                >
+                  {action.icon}
+                </span>
+                <span className="block text-xl font-semibold tracking-tight text-slate-100 sm:text-2xl">
+                  {action.title}
+                </span>
+                <span className="mt-2 block text-sm leading-6 text-slate-400">
+                  {action.description}
+                </span>
+                <span className="absolute bottom-6 right-6 text-xl text-slate-600 transition duration-300 group-hover:translate-x-1 group-hover:text-slate-300">
+                  →
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <footer className="flex items-center justify-between border-t border-white/[0.07] pt-5 text-xs text-slate-600">
+          <span>ScaffoldAI Inspect</span>
+          <span>Digitale Sicherheit am Gerüst</span>
+        </footer>
+      </div>
+    </main>
   );
 }
