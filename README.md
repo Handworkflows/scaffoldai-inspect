@@ -40,17 +40,29 @@ scaffoldai-inspect/
     ├── tickets/         Anforderungen einzelner Arbeitspakete
     ├── done/            Archiv abgeschlossener Tickets
     ├── knowledge/       Fachwissen aus dem Gerüstbau
+    ├── product-map/     Fachliche Module und Beziehungen
+    ├── architecture/    Domänenmodelle und Systemgrundlagen
+    ├── roles/           Rollen und Informationsbedarf
+    ├── workflows/       Durchgängige Geschäftsprozesse
+    ├── workshops/       Lebende Workshop-Zusammenfassungen
     └── decisions/       Fachliche und technische Entscheidungen
 ```
 
 ## Dokumentation
 
 - [Produktvision](docs/vision/PRODUCT_VISION.md)
+- [ScaffoldAI Master Vision](docs/vision/MASTER_VISION.md)
 - [Roadmap](docs/roadmap/ROADMAP.md)
 - [Produkt-Backlog](docs/backlog/README.md)
 - [Gerüstbauwissen](docs/knowledge/README.md)
 - [Architekturentscheidungen](docs/decisions/README.md)
 - [Abgeschlossene Tickets](docs/done/README.md)
+- [ScaffoldAI Product Map](docs/product-map/PRODUCT_MAP.md)
+- [Brain Knowledge Base](docs/knowledge/BRAIN_KNOWLEDGE_BASE.md)
+- [Fachliches Domänenmodell](docs/architecture/DOMAIN_MODEL.md)
+- [Rollenmodell](docs/roles/ROLE_MODEL.md)
+- [Projektlebenszyklus](docs/workflows/PROJECT_LIFECYCLE.md)
+- [Workshop-Archiv](docs/workshops/README.md)
 
 ## Technologie
 

@@ -12,3 +12,9 @@ In diesem Ordner entsteht die gemeinsame Wissensbasis von ScaffoldAI. Sie sammel
 - **KI-Wissen:** geprüfte Inhalte und Kontexte für die Assistenzfunktionen von ScaffoldAI
 
 Quellen, Gültigkeitsstand und fachliche Freigabe sollen bei jedem Wissenseintrag erkennbar sein. KI-generierte Inhalte gelten nicht ungeprüft als verbindliches Fachwissen.
+
+## Wissenssammlungen
+
+- [Brain Knowledge Base](BRAIN_KNOWLEDGE_BASE.md)
+- [Workshop-Archiv](../workshops/README.md)
+- [W-001 – Lebenszyklus eines Gerüstbauprojekts](../workshops/W-001-project-lifecycle/SUMMARY.md)
