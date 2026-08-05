@@ -17,5 +17,5 @@ export interface SiteVisit {
   projectId: string;
   date: string;
   type: SiteVisitType;
-  status: "Neu";
+  status: "Neu" | "Abgeschlossen";
 }
