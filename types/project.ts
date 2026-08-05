@@ -26,4 +26,5 @@ export interface Project extends Omit<ProjectDraft, "type"> {
   id: string;
   createdAt: string;
   type: ProjectType;
+  status: "Neu" | "Aktiv" | "Abgeschlossen" | "Archiviert";
 }

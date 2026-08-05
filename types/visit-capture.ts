@@ -1,10 +1,6 @@
-export interface VisitPhoto {
-  id: string;
-  workflowStepId: string;
-  dataUrl: string;
-  fileName: string;
-  capturedAt: string;
-}
+import type { ProjectPhoto } from "@/types/photo";
+
+export type VisitPhoto = ProjectPhoto;
 
 export interface VisitCapture {
   projectId: string;

@@ -110,7 +110,7 @@ export default function VisitPage() {
                 capture={capture}
                 onCheck={(key, checked) => updateCapture((current) => ({ ...current, checkedItems: { ...current.checkedItems, [key]: checked } }))}
                 onNote={(value) => updateCapture((current) => ({ ...current, notes: { ...current.notes, [activeStep.id]: value } }))}
-                onPhotos={(photos) => updateCapture((current) => ({ ...current, photos: [...photos, ...current.photos] }))}
+                onPhotos={(photos) => updateCapture((current) => ({ ...current, photos: [...photos.map((photo) => ({ ...photo, projectId, visitId })), ...current.photos] }))}
                 onDeletePhoto={(photoId) => updateCapture((current) => ({ ...current, photos: current.photos.filter((photo) => photo.id !== photoId) }))}
               />
 
@@ -148,14 +148,14 @@ function PhotoCapture({ step, photos, onAdd, onDelete }: { step: WorkflowStep; p
     if (!files.length) return;
     setProcessing(true);
     try {
-      const nextPhotos = await Promise.all(files.map(async (file) => ({ id: window.crypto.randomUUID(), workflowStepId: step.id, dataUrl: await compressImage(file), fileName: file.name, capturedAt: new Date().toISOString() })));
+      const nextPhotos = await Promise.all(files.map(async (file) => ({ id: window.crypto.randomUUID(), projectId: "", visitId: "", workflowStepId: step.id, dataUrl: await compressImage(file), fileName: file.name, timestamp: new Date().toISOString(), description: "", fileSize: file.size, tags: [] })));
       if (onAdd(nextPhotos)) event.target.value = "";
     } finally {
       setProcessing(false);
     }
   }
 
-  return <div className="mt-7"><label className="flex min-h-16 cursor-pointer items-center justify-center gap-3 rounded-2xl bg-cyan-300 px-5 py-4 text-center text-base font-semibold text-slate-950 transition hover:bg-cyan-200"><span aria-hidden="true">＋</span>{processing ? "Fotos werden vorbereitet …" : "Fotos hinzufügen"}<input type="file" accept="image/*" capture="environment" multiple onChange={addPhotos} disabled={processing} className="sr-only" /></label><p className="mt-3 text-center text-xs leading-5 text-slate-600">Öffnet auf unterstützten Smartphones Kamera oder Galerie. Eine direkte Kameraansicht kann später ergänzt werden.</p>{photos.length > 0 && <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">{photos.map((photo) => <figure key={photo.id} className="overflow-hidden rounded-2xl border border-white/10 bg-[#070b14]"><Image src={photo.dataUrl} alt={`Baustellenfoto ${formatDate(photo.capturedAt)}`} width={400} height={400} unoptimized className="aspect-square w-full object-cover" /><figcaption className="p-3"><p className="truncate text-xs text-slate-400">{photo.fileName}</p><p className="mt-1 text-[11px] text-slate-600">{formatDate(photo.capturedAt)}</p><button type="button" onClick={() => onDelete(photo.id)} className="mt-3 min-h-11 w-full rounded-xl border border-rose-300/15 px-3 py-2 text-xs font-medium text-rose-300 transition hover:bg-rose-400/10">Foto löschen</button></figcaption></figure>)}</div>}</div>;
+  return <div className="mt-7"><label className="flex min-h-16 cursor-pointer items-center justify-center gap-3 rounded-2xl bg-cyan-300 px-5 py-4 text-center text-base font-semibold text-slate-950 transition hover:bg-cyan-200"><span aria-hidden="true">＋</span>{processing ? "Fotos werden vorbereitet …" : "Fotos hinzufügen"}<input type="file" accept="image/*" capture="environment" multiple onChange={addPhotos} disabled={processing} className="sr-only" /></label><p className="mt-3 text-center text-xs leading-5 text-slate-600">Öffnet auf unterstützten Smartphones Kamera oder Galerie. Eine direkte Kameraansicht kann später ergänzt werden.</p>{photos.length > 0 && <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">{photos.map((photo) => <figure key={photo.id} className="overflow-hidden rounded-2xl border border-white/10 bg-[#070b14]"><Image src={photo.dataUrl} alt={`Baustellenfoto ${formatDate(photo.timestamp)}`} width={400} height={400} unoptimized className="aspect-square w-full object-cover" /><figcaption className="p-3"><p className="truncate text-xs text-slate-400">{photo.fileName}</p><p className="mt-1 text-[11px] text-slate-600">{formatDate(photo.timestamp)}</p><button type="button" onClick={() => onDelete(photo.id)} className="mt-3 min-h-11 w-full rounded-xl border border-rose-300/15 px-3 py-2 text-xs font-medium text-rose-300 transition hover:bg-rose-400/10">Foto löschen</button></figcaption></figure>)}</div>}</div>;
 }
 
 function VoicePlaceholder() {

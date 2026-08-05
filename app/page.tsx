@@ -79,6 +79,7 @@ export default function Home() {
       type: draft.type as ProjectType,
       id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}`,
       createdAt: new Date().toISOString(),
+      status: "Neu",
     };
     const nextProjects = [project, ...projects];
     writeProjects(nextProjects);
@@ -191,7 +192,7 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
           <p className="text-xs font-medium uppercase tracking-[0.16em] text-cyan-300">{project.type}</p>
           <h3 className="mt-2 text-xl font-semibold text-slate-100 transition group-hover:text-cyan-100">{project.name}</h3>
         </div>
-        <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs text-emerald-300">Neu</span>
+        <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs text-emerald-300">{project.status}</span>
       </div>
       <p className="mt-5 text-sm text-slate-400">{project.address}{project.postalCode || project.city ? ` · ${project.postalCode} ${project.city}` : ""}</p>
       {project.customer && <p className="mt-2 text-sm text-slate-500">Kunde: {project.customer}</p>}
