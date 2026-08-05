@@ -1,10 +1,11 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 import { AppShell } from "@/components/layout/app-shell";
+import { readProjects, writeProjects } from "@/lib/local-storage";
 import type { Project, ProjectDraft, ProjectService, ProjectType } from "@/types/project";
 
-const STORAGE_KEY = "scaffoldai-projects";
 const projectTypes: ProjectType[] = ["Wohnhaus", "Mehrfamilienhaus", "Gewerbe", "Industrie", "Sonstiges"];
 const services: ProjectService[] = ["Fassadengerüst", "Dacharbeiten", "Schutzdach", "Sonderkonstruktion", "Innenraumgerüst"];
 const emptyDraft: ProjectDraft = {
@@ -16,15 +17,6 @@ const emptyDraft: ProjectDraft = {
   type: null,
   services: [],
 };
-
-function readProjects(): Project[] {
-  try {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    return stored ? (JSON.parse(stored) as Project[]) : [];
-  } catch {
-    return [];
-  }
-}
 
 export default function Home() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -88,7 +80,7 @@ export default function Home() {
       createdAt: new Date().toISOString(),
     };
     const nextProjects = [project, ...projects];
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextProjects));
+    writeProjects(nextProjects);
     setProjects(nextProjects);
     setWizardOpen(false);
   }
@@ -128,11 +120,11 @@ export default function Home() {
             ) : (
               <div className="grid gap-4 lg:grid-cols-2">
                 {projects.map((project) => (
-                  <article key={project.id} className="rounded-2xl border border-white/10 bg-white/[0.045] p-6 shadow-xl shadow-black/10">
+                  <Link key={project.id} href={`/projects/${project.id}`} className="group rounded-2xl border border-white/10 bg-white/[0.045] p-6 shadow-xl shadow-black/10 transition hover:-translate-y-0.5 hover:border-cyan-300/30 hover:bg-white/[0.06] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300">
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <p className="text-xs font-medium uppercase tracking-[0.16em] text-cyan-300">{project.type}</p>
-                        <h3 className="mt-2 text-xl font-semibold text-slate-100">{project.name}</h3>
+                        <h3 className="mt-2 text-xl font-semibold text-slate-100 transition group-hover:text-cyan-100">{project.name}</h3>
                       </div>
                       <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs text-emerald-300">Neu</span>
                     </div>
@@ -141,7 +133,8 @@ export default function Home() {
                     <div className="mt-5 flex flex-wrap gap-2">
                       {project.services.length ? project.services.map((service) => <span key={service} className="rounded-lg bg-white/[0.055] px-2.5 py-1 text-xs text-slate-400">{service}</span>) : <span className="text-xs text-slate-600">Keine Leistung ausgewählt</span>}
                     </div>
-                  </article>
+                    <span className="mt-6 inline-flex items-center gap-2 text-xs font-medium text-cyan-300">Projekt öffnen <span aria-hidden="true">→</span></span>
+                  </Link>
                 ))}
               </div>
             )}
