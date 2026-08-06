@@ -4,6 +4,7 @@ import type { ProjectPhoto } from "@/types/photo";
 import type { Project } from "@/types/project";
 import type { SiteVisit } from "@/types/site-visit";
 import type { VisitCapture } from "@/types/visit-capture";
+import { emptyProjectCockpit, type ProjectCockpitData } from "@/types/project-cockpit";
 
 export const PROJECT_CORE_STORAGE_KEY = "scaffoldai-project-core";
 const LEGACY_PROJECTS_STORAGE_KEY = "scaffoldai-projects";
@@ -22,7 +23,7 @@ interface LegacyVisitCapture extends Omit<VisitCapture, "photos"> {
 }
 
 function emptyCoreStore(): ProjectCoreStore {
-  return { schemaVersion: PROJECT_CORE_SCHEMA_VERSION, projects: [], visits: [], photos: [], notes: [], checklistEntries: [], workflowStates: [], brainEntries: [], documents: [], measurements: [], materialEntries: [] };
+  return { schemaVersion: PROJECT_CORE_SCHEMA_VERSION, projects: [], visits: [], photos: [], notes: [], checklistEntries: [], workflowStates: [], brainEntries: [], documents: [], measurements: [], materialEntries: [], projectCockpits: [] };
 }
 
 function parseArray<T>(value: string | null): T[] {
@@ -40,11 +41,11 @@ function normalizeProject(project: Omit<Project, "status"> & { status?: Project[
 }
 
 function projectToCore(project: Project): CoreProject {
-  return { id: project.id, masterData: { name: project.name, projectType: project.type, services: project.services, createdAt: project.createdAt }, address: { street: project.address, postalCode: project.postalCode, city: project.city }, customer: { name: project.customer }, status: project.status };
+  return { id: project.id, masterData: { name: project.name, projectType: project.type, services: project.services, createdAt: project.createdAt }, address: { street: project.address, postalCode: project.postalCode, city: project.city }, customer: { name: project.customer, contactName: project.contactName, phone: project.contactPhone, email: project.contactEmail }, status: project.status };
 }
 
 function projectFromCore(project: CoreProject): Project {
-  return { id: project.id, name: project.masterData.name, type: project.masterData.projectType, services: project.masterData.services, createdAt: project.masterData.createdAt, address: project.address.street, postalCode: project.address.postalCode, city: project.address.city, customer: project.customer.name, status: project.status };
+  return { id: project.id, name: project.masterData.name, type: project.masterData.projectType, services: project.masterData.services, createdAt: project.masterData.createdAt, address: project.address.street, postalCode: project.address.postalCode, city: project.address.city, customer: project.customer.name, contactName: project.customer.contactName, contactPhone: project.customer.phone, contactEmail: project.customer.email, status: project.status };
 }
 
 function legacyPhotoSize(dataUrl: string): number {
@@ -90,8 +91,14 @@ export function readProjectCore(): ProjectCoreStore {
   const stored = window.localStorage.getItem(PROJECT_CORE_STORAGE_KEY);
   if (!stored) return migrateLegacyStore();
   try {
-    const parsed = JSON.parse(stored) as ProjectCoreStore;
-    return parsed.schemaVersion === PROJECT_CORE_SCHEMA_VERSION ? parsed : migrateLegacyStore();
+    const parsed = JSON.parse(stored) as ProjectCoreStore & { schemaVersion: number };
+    if (parsed.schemaVersion === PROJECT_CORE_SCHEMA_VERSION) return parsed;
+    if (parsed.schemaVersion === 1) {
+      const migrated: ProjectCoreStore = { ...parsed, schemaVersion: PROJECT_CORE_SCHEMA_VERSION, projectCockpits: [] };
+      writeProjectCore(migrated);
+      return migrated;
+    }
+    return migrateLegacyStore();
   } catch {
     return migrateLegacyStore();
   }
@@ -107,6 +114,15 @@ export function readProjects(): Project[] {
 
 export function writeProjects(projects: Project[]) {
   writeProjectCore({ ...readProjectCore(), projects: projects.map((project) => projectToCore(normalizeProject(project))) });
+}
+
+export function readProjectCockpit(projectId: string): ProjectCockpitData {
+  return readProjectCore().projectCockpits.find((cockpit) => cockpit.projectId === projectId) ?? emptyProjectCockpit(projectId);
+}
+
+export function writeProjectCockpit(cockpit: ProjectCockpitData) {
+  const store = readProjectCore();
+  writeProjectCore({ ...store, projectCockpits: [cockpit, ...store.projectCockpits.filter((item) => item.projectId !== cockpit.projectId)] });
 }
 
 export function readSiteVisits(): SiteVisit[] {

@@ -27,4 +27,7 @@ export interface Project extends Omit<ProjectDraft, "type"> {
   createdAt: string;
   type: ProjectType;
   status: "Neu" | "Aktiv" | "Abgeschlossen" | "Archiviert";
+  contactName?: string;
+  contactPhone?: string;
+  contactEmail?: string;
 }

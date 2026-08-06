@@ -5,8 +5,9 @@ import type { ProjectNote } from "@/types/note";
 import type { ProjectPhoto } from "@/types/photo";
 import type { Project, ProjectService, ProjectType } from "@/types/project";
 import type { SiteVisit } from "@/types/site-visit";
+import type { ProjectCockpitData } from "@/types/project-cockpit";
 
-export const PROJECT_CORE_SCHEMA_VERSION = 1 as const;
+export const PROJECT_CORE_SCHEMA_VERSION = 2 as const;
 
 export interface CoreProject {
   id: string;
@@ -23,6 +24,9 @@ export interface CoreProject {
   };
   customer: {
     name: string;
+    contactName?: string;
+    phone?: string;
+    email?: string;
   };
   status: Project["status"];
 }
@@ -71,4 +75,5 @@ export interface ProjectCoreStore {
   documents: ProjectDocument[];
   measurements: MeasurementEntry[];
   materialEntries: MaterialEntry[];
+  projectCockpits: ProjectCockpitData[];
 }

@@ -1,13 +1,39 @@
-import type { ReactNode } from "react";
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState, type ReactNode } from "react";
+import { readProjectCore, readProjects } from "@/lib/local-storage";
 
 const navigation = [
-  { label: "Übersicht", icon: "⌂", active: true },
-  { label: "Projekte", icon: "▦" },
+  { label: "Heute", icon: "⌂", href: "/" },
+  { label: "Projekte", icon: "▦", href: "/projects" },
   { label: "Aufnahmen", icon: "□" },
   { label: "Einstellungen", icon: "⚙" },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const [dailyHints, setDailyHints] = useState<Array<{ projectId: string; project: string; text: string }>>([]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const store = readProjectCore();
+      const names = new Map(readProjects().map((project) => [project.id, project.name]));
+      const today = dateKey(new Date());
+      const hints = store.projectCockpits.flatMap((cockpit) => {
+        const items: string[] = [];
+        if (cockpit.technical.plannedMeasurement && cockpit.technical.plannedMeasurement < today && isPending(cockpit.technical.measurementStatus)) items.push(`Aufmaß seit ${daysBetween(cockpit.technical.plannedMeasurement, today)} Tagen offen`);
+        if (cockpit.operational.openWork.trim()) items.push(cockpit.operational.openWork.trim());
+        if (cockpit.commercial.lastProgressInvoiceDate && daysBetween(cockpit.commercial.lastProgressInvoiceDate, today) >= 28) items.push(`Letzte Abschlagsrechnung vor ${daysBetween(cockpit.commercial.lastProgressInvoiceDate, today)} Tagen`);
+        if (cockpit.technical.plannedDismantling) { const days = daysBetween(today, cockpit.technical.plannedDismantling); if (days >= 0 && days <= 7) items.push(days === 0 ? "Abbau ist heute geplant" : `Abbau in ${days} Tagen geplant`); }
+        return items.map((text) => ({ projectId: cockpit.projectId, project: names.get(cockpit.projectId) ?? "Projekt", text }));
+      });
+      setDailyHints(hints.slice(0, 6));
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [pathname]);
+
   return (
     <div className="min-h-screen bg-[#070b14] text-slate-100">
       <div className="grid min-h-screen md:grid-cols-[88px_minmax(0,1fr)_280px] xl:grid-cols-[240px_minmax(0,1fr)_320px]">
@@ -26,22 +52,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
 
             <nav aria-label="Hauptnavigation" className="flex gap-1 md:my-auto md:flex-col md:gap-2">
-              {navigation.map((item) => (
-                <button
-                  key={item.label}
-                  type="button"
-                  aria-current={item.active ? "page" : undefined}
-                  title={item.label}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition md:justify-center xl:justify-start ${
-                    item.active
-                      ? "bg-cyan-400/10 text-cyan-300 ring-1 ring-inset ring-cyan-300/15"
-                      : "text-slate-500 hover:bg-white/[0.04] hover:text-slate-200"
-                  }`}
-                >
-                  <span aria-hidden="true" className="w-5 text-center text-lg">{item.icon}</span>
-                  <span className="hidden xl:inline">{item.label}</span>
-                </button>
-              ))}
+              {navigation.map((item) => {
+                const active = item.href === "/" ? pathname === "/" : Boolean(item.href && pathname.startsWith(item.href));
+                const className = `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition md:justify-center xl:justify-start ${active ? "bg-cyan-400/10 text-cyan-300 ring-1 ring-inset ring-cyan-300/15" : "text-slate-500 hover:bg-white/[0.04] hover:text-slate-200"}`;
+                const content = <><span aria-hidden="true" className="w-5 text-center text-lg">{item.icon}</span><span className="hidden xl:inline">{item.label}</span></>;
+                return item.href ? <Link key={item.label} href={item.href} aria-current={active ? "page" : undefined} title={item.label} className={className}>{content}</Link> : <button key={item.label} type="button" title={item.label} className={className}>{content}</button>;
+              })}
             </nav>
 
             <div className="hidden items-center gap-3 rounded-xl border border-white/[0.07] p-3 md:flex md:justify-center xl:justify-start">
@@ -58,38 +74,15 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <aside className="border-t border-white/[0.08] bg-[#090e19]/95 md:border-l md:border-t-0">
           <div className="flex h-full flex-col p-5 md:p-4 xl:p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold tracking-[0.18em] text-cyan-300 uppercase">ScaffoldAI Brain</p>
-                <p className="mt-1 text-xs text-slate-500">Projektassistent</p>
-              </div>
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.65)]" />
-            </div>
-
-            <div className="my-6 rounded-2xl border border-cyan-300/10 bg-cyan-400/[0.045] p-4">
-              <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300">✦</div>
-              <p className="text-sm font-medium text-slate-200">Bereit für dein Projekt</p>
-              <p className="mt-2 text-xs leading-5 text-slate-500">Ich begleite dich bei Aufnahme, Prüfung und Dokumentation.</p>
-            </div>
-
-            <div className="space-y-3">
-              <p className="text-[11px] font-semibold tracking-[0.16em] text-slate-600 uppercase">Projektstatus</p>
-              {["Projektdaten", "Baustellenfotos", "Prüfangaben"].map((label) => (
-                <div key={label} className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">{label}</span>
-                  <span className="text-slate-600">Offen</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-auto pt-8">
-              <div className="rounded-xl border border-dashed border-white/10 p-3 text-center text-xs leading-5 text-slate-600">
-                Hinweise erscheinen, sobald du ein Projekt öffnest.
-              </div>
-            </div>
+            <div><p className="text-xs font-semibold tracking-[0.18em] text-cyan-300 uppercase">Heutige Hinweise</p><p className="mt-1 text-xs text-slate-500">Aus vorhandenen Projektständen</p></div>
+            {dailyHints.length ? <div className="mt-6 space-y-3">{dailyHints.map((hint, index) => <Link key={`${hint.projectId}-${index}`} href={`/projects/${hint.projectId}`} className="block rounded-xl border border-white/[0.08] bg-white/[0.03] p-3 transition hover:border-cyan-300/25 hover:bg-white/[0.05]"><p className="text-[11px] font-medium text-cyan-300">{hint.project}</p><p className="mt-1 text-xs leading-5 text-slate-400">{hint.text}</p></Link>)}</div> : <div className="mt-6 rounded-xl border border-dashed border-white/10 p-4 text-center text-xs leading-5 text-slate-600">Keine aktuellen Hinweise aus den vorhandenen Projektdaten.</div>}
           </div>
         </aside>
       </div>
     </div>
   );
 }
+
+function dateKey(date: Date) { const year = date.getFullYear(); const month = String(date.getMonth() + 1).padStart(2, "0"); const day = String(date.getDate()).padStart(2, "0"); return `${year}-${month}-${day}`; }
+function daysBetween(from: string, to: string) { return Math.floor((new Date(`${to}T12:00:00`).getTime() - new Date(`${from}T12:00:00`).getTime()) / 86_400_000); }
+function isPending(value: string) { const normalized = value.trim().toLocaleLowerCase("de-DE"); return Boolean(normalized) && !["erledigt", "abgeschlossen", "freigegeben"].includes(normalized); }
