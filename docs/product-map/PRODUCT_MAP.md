@@ -24,8 +24,8 @@ Digitale Baustellenakte
       └── Aufmaß und Leistungsstand
       │
       ├────────► Material ◄──── Lager
-      │              │           │
-      │              └── Materialfluss
+      │              ├── Material Intelligence
+      │              └── Materialfluss / einsatzbezogene Beladung
       │
       └────────► Disposition
                        ├── Kolonnen / Mitarbeiter
@@ -33,6 +33,7 @@ Digitale Baustellenakte
                        └── Baustellenlogistik
 
 Brain-Module nutzen den gemeinsamen Kontext aller Module und liefern Hinweise zurück.
+Kommunikation verbindet als Querschnittsfunktion alle Module und dokumentiert Klärungen an ihrer fachlichen Quelle.
 Administration steuert Stammdaten, Rollen und Module.
 Geschäftsführung verdichtet operative Daten zu Steuerungsinformationen.
 ```
@@ -83,9 +84,9 @@ Beziehungen: entsteht aus Daten der **Baustellenakte** und liefert freigegebene 
 
 ### Material
 
-Beschreibt Bedarf, Startmaterial, geplante und tatsächliche Mengen, Rücklauf, Schäden und Prognosen auf Projekt- und Aktivitätsebene.
+Verbindet Material Intelligence, Materialfluss, einsatzbezogene Materialplanung und einsatzbezogene LKW-Beladung. Es beschreibt Bedarf, Startmaterial, geplante und tatsächliche Mengen, Rücklauf, Schäden und Prognosen auf Projekt- und Aktivitätsebene. Material wird für den nächsten Einsatz geplant und geladen, nicht isoliert für eine Baustelle.
 
-Beziehungen: gleicht Bedarf mit **Lager** ab, beauftragt **Disposition** und erhält Ist-Daten aus Baustellenaktivitäten.
+Beziehungen: gleicht Bedarf mit **Lager** ab, beauftragt **Disposition** und erhält Ist-Daten aus Baustellenaktivitäten. Der Materialfluss verbindet aufeinanderfolgende Einsätze und vermeidet unnötige Lageraufenthalte.
 
 ### Lager
 
@@ -110,6 +111,18 @@ Beziehungen: wird von **Disposition** geplant und erzeugt Rückmeldungen über A
 Verwaltet Typ, Kapazität, Verfügbarkeit, Einsatz und Transportbezug.
 
 Beziehungen: verbindet **Disposition**, **Lager**, Materialfluss und Baustelle.
+
+### Baustellenlogistik
+
+Bündelt die Voraussetzungen für einen durchführbaren Baustelleneinsatz: Zufahrt, Parkplatz, Halteverbot, Sondernutzung, Kran, Materialtransport, Laufwege, Dixi sowie Reinigung vor Abbau. Offene oder ungeklärte Voraussetzungen fließen in die Baustellen-Readiness ein.
+
+Beziehungen: liefert Restriktionen und Freigaben an **Disposition**, **Material**, **Fahrzeuge** und **Aktivitäten**; erhält Termin-, Konstruktions- und Baustellenkontext aus dem Projekt.
+
+### Kommunikation
+
+Ist eine Querschnittsfunktion für vorbereitete, kontextbezogene Abstimmungen. Anfragen, Antworten, Entscheidungen und offene Klärungen werden an Projekt, Aktivität oder fachlicher Quelle nachvollziehbar, damit Informationen nicht mehrfach erfasst und ungeplante Telefonate reduziert werden.
+
+Beziehungen: verbindet alle Module, ohne deren fachliche Daten zu duplizieren, und macht Klärungsbedarf für **Baustellen-Readiness** und **Brain** sichtbar.
 
 ### Brain
 

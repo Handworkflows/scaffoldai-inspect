@@ -16,7 +16,7 @@ Nicht nur bei der Abrechnung.
 
 Sondern während des gesamten Lebenszyklus einer Baustelle.
 
-ScaffoldAI soll der digitale Bauleiter werden.
+ScaffoldAI soll das digitale Werkzeug des Bauleiters werden.
 
 ---
 
@@ -57,6 +57,14 @@ Sondern die zentrale Plattform für:
 
 # Unsere Philosophie
 
+## Arbeit vorbereiten
+
+ScaffoldAI bereitet Arbeiten und Entscheidungen so weit vor, dass verantwortliche Menschen sie effizient prüfen und ausführen können. Es übernimmt weder ihre Entscheidung noch ihre Verantwortung.
+
+Jede Baustelle besitzt dafür einen messbaren Vorbereitungsgrad: die Baustellen-Readiness. Fehlende Voraussetzungen werden früh sichtbar, damit Baustellenstillstände, ungeplante Telefonate und unnötige Rückfragen vermieden werden.
+
+---
+
 ## Mobile First
 
 Die Baustelle ist wichtiger als das Büro.
@@ -89,6 +97,14 @@ Danach entstehen daraus automatisch:
 - Dokumentationen
 - Gefährdungsbeurteilungen
 - Montageanweisungen
+
+Module verwenden diese gemeinsame Quelle, statt dieselbe Information erneut zu erfassen.
+
+---
+
+## Material im Fluss halten
+
+Material wird für den nächsten Einsatz geplant. Es soll möglichst direkt zwischen Baustellen fließen und nur dann im Lager verbleiben, wenn Prüfung, Verfügbarkeit oder Wirtschaftlichkeit dies erfordern.
 
 ---
 
@@ -197,6 +213,10 @@ Alle Informationen bleiben dauerhaft miteinander verbunden.
 
 🧠 Brain Material
 
+🧠 Brain Materialfluss
+
+🧠 Brain Kommunikation
+
 🧠 Brain Nachtrag
 
 🧠 Brain Aufmaß
@@ -246,7 +266,7 @@ Er fotografiert die Baustelle.
 
 Er spricht zwei Minuten in sein Smartphone.
 
-ScaffoldAI erstellt automatisch:
+ScaffoldAI bereitet zur Prüfung vor:
 
 - Aufmaß
 - Materialliste

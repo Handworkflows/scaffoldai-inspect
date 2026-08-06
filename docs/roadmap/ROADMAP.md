@@ -16,7 +16,7 @@ Activity Engine ──► Live-Baustelle ──► Change Manager
       │                    │
       └──► Baustellenakte ─┴──► Brain-Module
 
-Materialmanager ──► Materialfluss ──► Lager / Startmaterial
+Material Intelligence ──► Materialfluss ──► Lager / Startmaterial
         │                  │
         └──────────► Dispositionsmanager ◄── Mitarbeiter / Fahrzeuge
 
@@ -46,17 +46,22 @@ Abhängigkeiten: Project Core vor Activity Engine; Activity Engine vor generisch
 Ziel: Planung, Ausführung, Änderungen und Dokumente ohne Medienbruch verbinden.
 
 - **Live-Baustelle:** aktueller Stand, nächste Schritte, offene Punkte und Verantwortliche
+- **Baustellen-Readiness:** messbarer Vorbereitungsgrad aus fachlichen, logistischen und organisatorischen Voraussetzungen
+- **Vorbereitete Arbeiten:** prüf- und ausführbare Arbeitspakete mit Kontext, offenen Punkten und Verantwortlichen
+- **Auftragssimulator:** regelbasierte Szenarien für Termin, Kapazität, Konstruktion, Statik, Lasten, Logistik und Wirtschaftlichkeit
 - **Change Manager:** Änderungen, Umbauten, Behinderungen und Nachtragspotenziale
 - **Dokumentencenter:** Versionen, Freigaben und Vorlagen
 - **Aufmaß und Nachträge:** strukturierte Mengen und Nachweise aus Aktivitäten
-- **Materialmanager:** Soll, Startmaterial, Ist, Bedarf, Rest und Rücklauf je Projekt
+- **Material Intelligence:** Soll, Startmaterial, Ist, Bedarf, Rest, Rücklauf und Prognosen je Einsatz
 - **Materialfluss:** Lager, Fahrzeug und Baustelle als nachvollziehbare Bewegungen
+- **Einsatzbezogene Beladung:** LKW-Beladung nach Transportkette und nächstem Einsatz vorbereiten
 - **Startmaterial:** Ableitung und Freigabe des initialen Materialbedarfs
 - **Baustellenlogistik:** Lieferungen, Abholungen, Zeitfenster und Zugänge
 - **Dispositionsmanager – Basis:** Kolonnen, Mitarbeiter, Fahrzeuge und Aktivitäten planen
+- **Regelbasierte Assistenten:** frühe, nachvollziehbare Prüfungen und Hinweise bereits vor KI-Funktionen
 - **Brain Bauleiter / Brain Vorarbeiter:** kontextbezogene operative Hinweise
 
-Abhängigkeiten: Live-Baustelle benötigt Activity Engine und Timeline. Change Manager benötigt Aktivitäten und Baustellenakte. Dokumentencenter nutzt Quellen aus Baustellenakte und Change Manager. Materialfluss benötigt Materialmanager; Disposition benötigt Ressourcen- und Materialverfügbarkeit.
+Abhängigkeiten: Live-Baustelle benötigt Activity Engine und Timeline. Change Manager benötigt Aktivitäten und Baustellenakte. Dokumentencenter nutzt Quellen aus Baustellenakte und Change Manager. Materialfluss benötigt Material Intelligence; Disposition benötigt Ressourcen- und Materialverfügbarkeit. Regelbasierte Assistenten gehen lernenden KI-Funktionen voraus.
 
 ## Phase 3 – Unternehmensweite Steuerung
 
@@ -67,6 +72,8 @@ Ziel: Ressourcen, Sicherheit, Dokumente und kaufmännische Ergebnisse projektüb
 - **Mitarbeiter und Qualifikationen:** verfügbare und geeignete Besetzung
 - **Fahrzeuge:** Kapazität, Einsatz und Transportbezug
 - **Brain Material:** Bedarf, Rücklauf und Prognosen
+- **Brain Materialfluss:** einsatzübergreifende Transporte und Beladung
+- **Brain Kommunikation:** gebündelte, kontextbezogene Klärungen
 - **Brain Disposition:** Engpässe und erklärbare Planungsvorschläge
 - **Brain Sicherheit:** adaptive Prüfungen, Risiken und Dokumentationslücken
 - **Automatische Dokumententwürfe:** Tagesbericht, Materialliste, Aufmaß, Nachtrag, Gefährdungsbeurteilung und Montageanweisung
@@ -95,3 +102,4 @@ Abhängigkeiten: Vision-Funktionen setzen ausreichend hochwertige, freigegebene 
 4. Erst Rollen, Ressourcen und Verfügbarkeiten, dann Dispositionsoptimierung.
 5. Erst geprüfte Fachprozesse, dann spezialisierte Brain-Module.
 6. Erst operative Datenqualität, dann Geschäftsführer-Kennzahlen und Forecasts.
+7. Erst regelbasierte Assistenten, dann lernende KI-Funktionen.

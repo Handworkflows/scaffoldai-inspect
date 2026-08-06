@@ -4,7 +4,7 @@ Die Brain-Module sind spezialisierte Entscheidungshilfen auf einer gemeinsamen D
 
 ## Gemeinsame Arbeitsweise
 
-Jeder Brain-Eintrag besitzt Projekt- und, wenn vorhanden, Aktivitätsbezug. Er benennt Typ, Priorität, Status, Begründung und verwendete Daten. Hinweise werden bestätigt, erledigt oder verworfen; diese Rückmeldung verbessert spätere Empfehlungen nur mit entsprechender Zustimmung und Governance.
+Jeder Brain-Eintrag besitzt Projekt- und, wenn vorhanden, Aktivitätsbezug. Er benennt Typ, Priorität, Status, Begründung und verwendete Daten. Hinweise werden bestätigt, erledigt oder verworfen; diese Rückmeldung verbessert spätere Empfehlungen nur mit entsprechender Zustimmung und Governance. Jedes Brain bereitet Arbeit vor, statt sie eigenständig zu übernehmen, vermeidet durch vollständigen Kontext unnötige Rückfragen und priorisiert fehlende Voraussetzungen, bevor daraus ein Baustellenstillstand entsteht.
 
 ## Brain Bauleiter
 
@@ -37,6 +37,28 @@ Jeder Brain-Eintrag besitzt Projekt- und, wenn vorhanden, Aktivitätsbezug. Er b
 - **Benötigte Daten:** Projekttermine, Aktivitäten, Qualifikationen, Verfügbarkeiten, Fahrzeugkapazitäten, Lagerstatus, Baustellenrestriktionen und Prioritäten.
 - **Erzeugte Informationen:** konfliktarme Dispositionsvorschläge, Engpasswarnungen, Transportketten, Änderungsfolgen und Alternativen.
 - **Zukünftige KI-Funktionen:** Optimierung mehrerer Ressourcen, Verspätungsprognosen, automatische Neuplanung und erklärbare Szenarienvergleiche.
+
+## Brain Materialfluss
+
+- **Aufgabe:** Materialbewegungen zwischen aufeinanderfolgenden Einsätzen, Fahrzeugen, Baustellen und Lager vorausschauend vorbereiten.
+- **Unterstützte Entscheidungen:** Direkttransport, Zwischenlagerung, Rückholung, Umladung, einsatzbezogene LKW-Beladung und Reihenfolge der Transporte.
+- **Benötigte Daten:** Einsatztermine, Materialbedarf, Baustellenfortschritt, Fahrzeugkapazitäten, Beladung, Lagerstatus, Prüfbedarf und Baustellenlogistik.
+- **Erzeugte Informationen:** Transportketten, Beladevorschläge, vermeidbare Lageraufenthalte, Konflikte und fehlende Voraussetzungen für den nächsten Einsatz.
+- **Zukünftige KI-Funktionen:** Flussprognosen, dynamische Beladevorschläge und erklärbare Alternativen bei Termin- oder Mengenänderungen.
+
+## Brain Kommunikation
+
+- **Aufgabe:** offenen Klärungsbedarf aus allen Modulen erkennen, mit vorhandenem Kontext vorbereiten und nachvollziehbar an die richtige Rolle richten.
+- **Unterstützte Entscheidungen:** ob, wann, mit wem und zu welchem Sachverhalt eine Abstimmung erforderlich ist.
+- **Benötigte Daten:** offene Punkte, Verantwortlichkeiten, Termine, Freigaben, Entscheidungen, Baustellen-Readiness und bestehende Kommunikation.
+- **Erzeugte Informationen:** gebündelte Rückfragen, vorbereitete Gesprächs- oder Nachrichtentexte, Zuständigkeiten, Fristen und dokumentierte Antworten.
+- **Zukünftige KI-Funktionen:** kontextbezogene Zusammenfassungen, Priorisierung von Klärungen und Entwürfe für rollen- und situationsgerechte Kommunikation.
+
+## Wissen zur Materialplanung
+
+Materialplanung folgt zwingend der fachlichen Reihenfolge **Termin → Kapazität → Konstruktion → Statik → Lasten → Logistik → Wirtschaftlichkeit → Material**. Der Materialbedarf ist das Ergebnis dieser Prüfungen, nicht ihr Ausgangspunkt.
+
+Material wird für den nächsten Einsatz geladen. Baustellenbezogene Zuordnung bleibt nachvollziehbar, bestimmt aber nicht allein die physische Beladung oder den Materialfluss.
 
 ## Brain Sicherheit
 

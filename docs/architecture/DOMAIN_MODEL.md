@@ -88,4 +88,5 @@ Die chronologische Sicht auf fachlich relevante Ereignisse. Ein Timeline-Eintrag
 - Historische Fakten werden ergänzt oder versioniert, nicht still überschrieben.
 - Timeline-Einträge referenzieren ihre Quelle.
 - Brain-Ausgaben bleiben von menschlichen Entscheidungen unterscheidbar.
+- ScaffoldAI bereitet Entscheidungen vor und unterstützt sie; es ersetzt keinen Bauleiter.
 - Rollen, Zeit und Status sind bei disponierten Ressourcen explizit.
