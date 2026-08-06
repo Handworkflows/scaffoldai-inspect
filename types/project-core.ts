@@ -6,8 +6,9 @@ import type { ProjectPhoto } from "@/types/photo";
 import type { Project, ProjectService, ProjectType } from "@/types/project";
 import type { SiteVisit } from "@/types/site-visit";
 import type { ProjectCockpitData } from "@/types/project-cockpit";
+import type { Activity } from "@/types/activity";
 
-export const PROJECT_CORE_SCHEMA_VERSION = 2 as const;
+export const PROJECT_CORE_SCHEMA_VERSION = 3 as const;
 
 export interface CoreProject {
   id: string;
@@ -76,4 +77,5 @@ export interface ProjectCoreStore {
   measurements: MeasurementEntry[];
   materialEntries: MaterialEntry[];
   projectCockpits: ProjectCockpitData[];
+  activities: Activity[];
 }

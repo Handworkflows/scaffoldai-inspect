@@ -15,6 +15,7 @@ export type SiteVisitType = (typeof siteVisitTypes)[number];
 export interface SiteVisit {
   id: string;
   projectId: string;
+  activityId?: string;
   date: string;
   type: SiteVisitType;
   status: "Neu" | "Abgeschlossen";

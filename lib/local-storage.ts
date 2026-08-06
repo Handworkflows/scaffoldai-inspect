@@ -5,6 +5,7 @@ import type { Project } from "@/types/project";
 import type { SiteVisit } from "@/types/site-visit";
 import type { VisitCapture } from "@/types/visit-capture";
 import { emptyProjectCockpit, type ProjectCockpitData } from "@/types/project-cockpit";
+import type { Activity } from "@/types/activity";
 
 export const PROJECT_CORE_STORAGE_KEY = "scaffoldai-project-core";
 const LEGACY_PROJECTS_STORAGE_KEY = "scaffoldai-projects";
@@ -23,7 +24,7 @@ interface LegacyVisitCapture extends Omit<VisitCapture, "photos"> {
 }
 
 function emptyCoreStore(): ProjectCoreStore {
-  return { schemaVersion: PROJECT_CORE_SCHEMA_VERSION, projects: [], visits: [], photos: [], notes: [], checklistEntries: [], workflowStates: [], brainEntries: [], documents: [], measurements: [], materialEntries: [], projectCockpits: [] };
+  return { schemaVersion: PROJECT_CORE_SCHEMA_VERSION, projects: [], visits: [], photos: [], notes: [], checklistEntries: [], workflowStates: [], brainEntries: [], documents: [], measurements: [], materialEntries: [], projectCockpits: [], activities: [] };
 }
 
 function parseArray<T>(value: string | null): T[] {
@@ -94,7 +95,12 @@ export function readProjectCore(): ProjectCoreStore {
     const parsed = JSON.parse(stored) as ProjectCoreStore & { schemaVersion: number };
     if (parsed.schemaVersion === PROJECT_CORE_SCHEMA_VERSION) return parsed;
     if (parsed.schemaVersion === 1) {
-      const migrated: ProjectCoreStore = { ...parsed, schemaVersion: PROJECT_CORE_SCHEMA_VERSION, projectCockpits: [] };
+      const migrated: ProjectCoreStore = { ...parsed, schemaVersion: PROJECT_CORE_SCHEMA_VERSION, projectCockpits: [], activities: [] };
+      writeProjectCore(migrated);
+      return migrated;
+    }
+    if (parsed.schemaVersion === 2) {
+      const migrated: ProjectCoreStore = { ...parsed, schemaVersion: PROJECT_CORE_SCHEMA_VERSION, activities: [] };
       writeProjectCore(migrated);
       return migrated;
     }
@@ -125,14 +131,23 @@ export function writeProjectCockpit(cockpit: ProjectCockpitData) {
   writeProjectCore({ ...store, projectCockpits: [cockpit, ...store.projectCockpits.filter((item) => item.projectId !== cockpit.projectId)] });
 }
 
+export function readActivities(): Activity[] {
+  return readProjectCore().activities;
+}
+
+export function writeActivities(activities: Activity[]) {
+  writeProjectCore({ ...readProjectCore(), activities });
+}
+
 export function readSiteVisits(): SiteVisit[] {
-  return readProjectCore().visits.map(({ id, projectId, date, type, status }) => ({ id, projectId, date, type, status }));
+  return readProjectCore().visits.map(({ id, projectId, activityId, date, type, status }) => ({ id, projectId, activityId, date, type, status }));
 }
 
 export function writeSiteVisits(visits: SiteVisit[]) {
   const store = readProjectCore();
   const createdAtById = new Map(store.visits.map((visit) => [visit.id, visit.createdAt]));
-  writeProjectCore({ ...store, visits: visits.map((visit): CoreSiteVisit => ({ ...visit, createdAt: createdAtById.get(visit.id) ?? visit.date })) });
+  const activityIdById = new Map(store.visits.map((visit) => [visit.id, visit.activityId]));
+  writeProjectCore({ ...store, visits: visits.map((visit): CoreSiteVisit => ({ ...visit, activityId: visit.activityId ?? activityIdById.get(visit.id), createdAt: createdAtById.get(visit.id) ?? visit.date })) });
 }
 
 export function readVisitCapture(projectId: string, visitId: string): VisitCapture {
