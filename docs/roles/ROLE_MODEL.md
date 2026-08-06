@@ -12,31 +12,31 @@ Das Rollenmodell beschreibt fachliche Verantwortung und Informationsbedarf. Konk
 
 - **Verantwortlichkeiten:** operative Führung der Kolonne, Vollständigkeit und Qualität der Ausführung, Sicherheitskontrolle, Tagesrückmeldung und Materialabgleich.
 - **Benötigte Informationen:** Projektumfang, Plan und Anweisungen, Kolonne, Material, Termine, Risiken, offene Punkte und Freigaben.
-- **Benötigte Funktionen:** Activity-Workflow, Tagesplanung, Checklisten, Foto-/Spracherfassung, Materialbedarf, Fortschritt, Abweichung, Übergabe und Brain Vorarbeiter.
+- **Benötigte Funktionen:** Arbeitsablauf für Aktivitäten, Tagesplanung, Checklisten, Foto-/Spracherfassung, Materialbedarf, Fortschritt, Abweichung, Übergabe und Hinweise für Vorarbeiter.
 
 ## Bauleiter
 
 - **Verantwortlichkeiten:** technischer und organisatorischer Projekterfolg, Abstimmung mit Kunde und Baustelle, Aufmaß, Änderungen, Nachträge, Dokumentation und Freigaben.
 - **Benötigte Informationen:** vollständige Baustellenakte, Auftrag, Termine, Aktivitäten, Ressourcen, Material, Dokumente, Risiken, Kosten- und Leistungsstand.
-- **Benötigte Funktionen:** Projektsteuerung, Baustellenbesuche, Change Manager, Aufmaß, Nachträge, Dokumentencenter, Aufgaben, Timeline und Brain Bauleiter/Sicherheit.
+- **Benötigte Funktionen:** Projektsteuerung, Baustellentermine, Änderungen und Nachträge, Aufmaß, Dokumentenübersicht, Aufgaben, Verlauf sowie Hinweise für Bauleitung und Sicherheit.
 
 ## Lager
 
 - **Verantwortlichkeiten:** korrekte Bestände, Kommissionierung, Ausgabe, Rücknahme, Prüfung und Bereitstellung.
 - **Benötigte Informationen:** Materialbedarf, Reservierungen, Prioritäten, Abhol-/Liefertermine, Fahrzeuge, Rückläufe und Schäden.
-- **Benötigte Funktionen:** Lagerübersicht, Materiallisten, Reservierung, Scan-/Fotoerfassung, Be- und Entladung, Bestandskorrektur und Brain Material.
+- **Benötigte Funktionen:** Lagerübersicht, Materiallisten, Reservierung, Scan-/Fotoerfassung, Be- und Entladung, Bestandskorrektur und Materialhinweise.
 
 ## Disposition
 
 - **Verantwortlichkeiten:** konfliktarme Einsatzplanung von Kolonnen, Mitarbeitern, Fahrzeugen, Material und Transporten.
 - **Benötigte Informationen:** Projektprioritäten, Aktivitäten, Zeitfenster, Qualifikationen, Verfügbarkeiten, Fahrzeugkapazitäten, Lagerstatus und Störungen.
-- **Benötigte Funktionen:** Planungskalender, Ressourcenansicht, Dispositionsmanager, Konfliktwarnungen, Umplanung, Baustellenlogistik und Brain Disposition.
+- **Benötigte Funktionen:** Planungskalender, Ressourcenansicht, Einsatzplanung, Konfliktwarnungen, Umplanung, Baustellenlogistik und Dispositionshinweise.
 
 ## Geschäftsführer
 
 - **Verantwortlichkeiten:** Unternehmenssteuerung, Prioritäten, Kapazität, Liquidität, Ergebnis und Risikorahmen.
 - **Benötigte Informationen:** Pipeline, Projektportfolio, Leistungs- und Abrechnungsstand, Nachträge, Forderungen, Materialbindung, Auslastung und Risiken.
-- **Benötigte Funktionen:** Geschäftsführer-Dashboard, Kennzahlen, Drill-down zur Quelle, Forecasts, Frühwarnungen und Brain Geschäftsführer.
+- **Benötigte Funktionen:** Unternehmensübersicht, Kennzahlen, Drill-down zur Quelle, Forecasts, Frühwarnungen und Hinweise für die Geschäftsführung.
 
 ## Administrator
 

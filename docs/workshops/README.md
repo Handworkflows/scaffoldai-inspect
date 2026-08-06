@@ -31,3 +31,6 @@ Eine Zusammenfassung dokumentiert mindestens:
 | Workshop | Thema | Status |
 |---|---|---|
 | [W-001](W-001-project-lifecycle/SUMMARY.md) | Lebenszyklus eines Gerüstbauprojekts | Lebende Zusammenfassung |
+| [W-002](W-002-operating-system/SUMMARY.md) | Operating System für den ereignisorientierten Bauleiter-Alltag | Lebende Zusammenfassung |
+| [W-003](W-003-activity-engine/SUMMARY.md) | Fachliches Modell der Activity Engine | Fachlich konsolidiert |
+| [W-004](W-004-domain-language/SUMMARY.md) | Verbindliche Domänensprache von ScaffoldAI | Verbindlich konsolidiert |

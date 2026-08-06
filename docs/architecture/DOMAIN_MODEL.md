@@ -1,6 +1,6 @@
 # Fachliches Domänenmodell
 
-Dieses Dokument beschreibt die aus W-001 abgeleiteten fachlichen Begriffe und Beziehungen. Es ist bewusst unabhängig von Datenbank, API und konkreter Implementierung. Das bestehende Software-Datenmodell wird durch T-007 nicht verändert.
+Dieses Dokument beschreibt die aus W-001 bis W-003 abgeleiteten fachlichen Begriffe und Beziehungen. Es ist bewusst unabhängig von Datenbank, API und konkreter Implementierung. Die vollständigen Regeln der Aktivität definiert [PS-001](../specs/PS-001-Activity-Engine.md).
 
 ## Modellübersicht
 
@@ -26,9 +26,9 @@ Die zentrale fachliche Klammer vom qualifizierten Auftrag bis zum Archiv. Es bes
 
 ## Aktivität
 
-Ein zeitlich einordenbarer Vorgang mit Zweck, Typ, Status, Verantwortlichen, Workflow und Ergebnis. Beispiele sind Baustellenbesuch, Telefonat, Lieferung, Kontrolle, Freigabe, Aufmaß oder Dokumenterstellung. Eine Aktivität kann geplant, laufend, unterbrochen, abgeschlossen oder storniert sein.
+Ein zeitlich einordenbarer Vorgang mit Zweck, Typ, Status, Verantwortlichkeit, Priorität, Zeitbezug, Readiness und Ergebnis. Beispiele sind Baustellenbesuch, Telefonat, Lieferung, Kontrolle, Freigabe, Aufmaß oder Dokumentprüfung. Der fachliche Lebenszyklus unterscheidet Entwurf, geplant, vorbereitet, disponiert, unterwegs, begonnen, wartet, pausiert, abgeschlossen und storniert. Nicht jeder Aktivitätstyp verwendet jeden Status.
 
-Beziehungen: gehört zu genau einem Projekt; kann Beteiligte, Kolonne, Fahrzeug, Material, Dokumente, Nachträge, Behinderungen und Brain-Einträge referenzieren; erzeugt Timeline-Einträge.
+Beziehungen: gehört zu genau einem Projekt; kann Beteiligte, Kolonne, Fahrzeug, Material, Dokumente, Nachträge, Behinderungen und Brain-Einträge referenzieren; steht über explizite Voraussetzung-, Folge-, Blockade-, Korrektur- oder Nachweisbeziehungen mit anderen Aktivitäten in Verbindung; erzeugt Timeline-Einträge.
 
 ## Besuch
 
@@ -90,3 +90,6 @@ Die chronologische Sicht auf fachlich relevante Ereignisse. Ein Timeline-Eintrag
 - Brain-Ausgaben bleiben von menschlichen Entscheidungen unterscheidbar.
 - ScaffoldAI bereitet Entscheidungen vor und unterstützt sie; es ersetzt keinen Bauleiter.
 - Rollen, Zeit und Status sind bei disponierten Ressourcen explizit.
+- Status, Readiness, Priorität und Ergebnis einer Aktivität bleiben getrennte Konzepte.
+- Eine abgeschlossene Aktivität besitzt ein dokumentiertes Ergebnis; Korrekturen und Folgearbeit bleiben historisch nachvollziehbar.
+- Timeline, Baustellenakte und „Heute“ referenzieren Aktivitäten, statt parallele Prozessbestände aufzubauen.

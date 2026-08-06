@@ -85,7 +85,7 @@ mit kontextbezogenen Workflows
 
 ---
 
-## Dashboard
+## Heute
 
 Morgens in 30 Sekunden:
 
@@ -134,7 +134,7 @@ Hilft bei:
 - Materialfluss
 - Lagerverwaltung
 - Dispositionsoptimierung
-- Geschäftsführer-Dashboard
+- Unternehmensübersicht
 - automatische Kalkulation
 - KI-Prognosen
 - Bilderkennung

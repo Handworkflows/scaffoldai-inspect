@@ -15,6 +15,7 @@ Quellen, Gültigkeitsstand und fachliche Freigabe sollen bei jedem Wissenseintra
 
 ## Wissenssammlungen
 
+- [ScaffoldAI Domain Language Dictionary](DOMAIN_LANGUAGE.md)
 - [Brain Knowledge Base](BRAIN_KNOWLEDGE_BASE.md)
 - [Workshop-Archiv](../workshops/README.md)
 - [W-001 – Lebenszyklus eines Gerüstbauprojekts](../workshops/W-001-project-lifecycle/SUMMARY.md)

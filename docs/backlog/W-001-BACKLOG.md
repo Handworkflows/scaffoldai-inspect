@@ -89,7 +89,7 @@ Prioritäten: **MVP** schafft den durchgängigen Kern, **Phase 2** verbindet ope
 
 | Idee | Nutzen | Priorität |
 |---|---|---|
-| Geschäftsführer-Dashboard | Pipeline, Leistung, Risiken und Liquidität bündeln | Phase 3 |
+| Unternehmensübersicht | Pipeline, Leistung, Risiken und Liquidität bündeln | Phase 3 |
 | Projektübergreifende Nachtrags- und Abschlagsübersicht | Umsatzpotenziale und Forderungen verfolgen | Phase 3 |
 | Materialbindung und Ressourcenauslastung | Kapital und Kapazität besser steuern | Phase 3 |
 | Frühwarnsystem für Marge, Termine und Engpässe | Gegenmaßnahmen früher einleiten | Vision |

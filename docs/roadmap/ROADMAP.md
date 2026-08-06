@@ -1,6 +1,6 @@
 # ScaffoldAI Roadmap
 
-Stand: 6. August 2026
+Stand: 7. August 2026
 
 Die Roadmap leitet Produktbausteine aus W-001 und der Master Vision ab. Sie beschreibt fachliche Reihenfolge und Abhängigkeiten, keine verbindlichen Termine. Jede Phase liefert einen nutzbaren Stand; KI-Module folgen belastbaren Daten und menschlich geprüften Prozessen.
 
@@ -21,7 +21,7 @@ Material Intelligence ──► Materialfluss ──► Lager / Startmaterial
         └──────────► Dispositionsmanager ◄── Mitarbeiter / Fahrzeuge
 
 Aufmaß + Nachträge + Dokumente ──► Angebot / Abschlag / Abrechnung
-Alle freigegebenen Bereiche ─────► Geschäftsführer-Dashboard
+Alle freigegebenen Bereiche ─────► Unternehmensübersicht
 ```
 
 ## MVP – Baustellenkontext
@@ -77,9 +77,9 @@ Ziel: Ressourcen, Sicherheit, Dokumente und kaufmännische Ergebnisse projektüb
 - **Brain Disposition:** Engpässe und erklärbare Planungsvorschläge
 - **Brain Sicherheit:** adaptive Prüfungen, Risiken und Dokumentationslücken
 - **Automatische Dokumententwürfe:** Tagesbericht, Materialliste, Aufmaß, Nachtrag, Gefährdungsbeurteilung und Montageanweisung
-- **Geschäftsführer-Dashboard:** Pipeline, Leistung, Liquidität, Materialbindung, Auslastung und Risiken
+- **Unternehmensübersicht:** Pipeline, Leistung, Liquidität, Materialbindung, Auslastung und Risiken
 
-Abhängigkeiten: Brain-Module benötigen fachlich freigegebene Daten ihres Moduls. Das Geschäftsführer-Dashboard folgt konsistenten operativen und kaufmännischen Statusmodellen.
+Abhängigkeiten: Brain-Module benötigen fachlich freigegebene Daten ihres Moduls. Die Unternehmensübersicht folgt konsistenten operativen und kaufmännischen Statusmodellen.
 
 ## Vision – Digitales Betriebssystem
 
@@ -101,5 +101,5 @@ Abhängigkeiten: Vision-Funktionen setzen ausreichend hochwertige, freigegebene 
 3. Erst Materialfluss, dann belastbare Lager- und Materialprognosen.
 4. Erst Rollen, Ressourcen und Verfügbarkeiten, dann Dispositionsoptimierung.
 5. Erst geprüfte Fachprozesse, dann spezialisierte Brain-Module.
-6. Erst operative Datenqualität, dann Geschäftsführer-Kennzahlen und Forecasts.
+6. Erst operative Datenqualität, dann Unternehmenskennzahlen und Forecasts.
 7. Erst regelbasierte Assistenten, dann lernende KI-Funktionen.
