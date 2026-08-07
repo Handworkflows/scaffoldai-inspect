@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
+import { compressImage } from "@/lib/file-processing";
 import { readProjects, readSiteVisits, readVisitCapture, writeSiteVisits, writeVisitCapture } from "@/lib/local-storage";
 import { getVisitWorkflow } from "@/lib/visit-workflows";
 import type { Project } from "@/types/project";
@@ -68,7 +69,7 @@ export default function VisitPage() {
     <AppShell>
       <div className="relative min-h-full overflow-hidden text-white">
         <div className="pointer-events-none absolute inset-0"><div className="absolute right-[-8rem] top-[-8rem] h-[30rem] w-[30rem] rounded-full bg-cyan-500/10 blur-3xl" /></div>
-        <div className="relative mx-auto min-h-screen w-full max-w-5xl px-4 py-5 sm:px-6 sm:py-8 lg:px-10">
+        <div className="relative mx-auto min-h-screen w-full max-w-[1320px] px-5 py-8 sm:px-8 lg:px-10">
           <Link href={`/projects/${projectId}`} className="inline-flex min-h-11 items-center text-sm text-slate-500 transition hover:text-cyan-300">← Zurück zu {project.name}</Link>
           <header className="mt-3 flex flex-col justify-between gap-4 border-b border-white/[0.08] pb-6 sm:mt-6 sm:flex-row sm:items-end sm:pb-7">
             <div>
@@ -165,18 +166,6 @@ function VoicePlaceholder() {
 
 function BrainContext({ project, visit, nextStep }: { project: Project; visit: SiteVisit; nextStep: string }) {
   return <aside className="mt-6 rounded-2xl border border-cyan-300/15 bg-cyan-400/[0.045] p-4 sm:p-5" aria-label="Brain-Kontext"><div className="flex items-start gap-3"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300" aria-hidden="true">✦</span><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300">Brain-Hinweis</p><p className="mt-2 text-sm text-slate-400">{project.name} · {visit.type}</p><p className="mt-1 text-sm font-medium text-slate-200">Nächster Schritt: „{nextStep}.“</p></div></div></aside>;
-}
-
-async function compressImage(file: File): Promise<string> {
-  const bitmap = await createImageBitmap(file);
-  const maxEdge = 1600;
-  const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.max(1, Math.round(bitmap.width * scale));
-  canvas.height = Math.max(1, Math.round(bitmap.height * scale));
-  canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  bitmap.close();
-  return canvas.toDataURL("image/jpeg", 0.78);
 }
 
 function formatDate(date: string) {

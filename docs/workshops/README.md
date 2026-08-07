@@ -34,3 +34,7 @@ Eine Zusammenfassung dokumentiert mindestens:
 | [W-002](W-002-operating-system/SUMMARY.md) | Operating System für den ereignisorientierten Bauleiter-Alltag | Lebende Zusammenfassung |
 | [W-003](W-003-activity-engine/SUMMARY.md) | Fachliches Modell der Activity Engine | Fachlich konsolidiert |
 | [W-004](W-004-domain-language/SUMMARY.md) | Verbindliche Domänensprache von ScaffoldAI | Verbindlich konsolidiert |
+| [W-005](W-005-workflow-operating-system/SUMMARY.md) | Workflow Operating System für den gesamten Unternehmensablauf | Zielarchitektur beschlossen |
+| [W-006](W-006-roles-permissions/SUMMARY.md) | Verbindliches Rollen- und Berechtigungsmodell | Fachlich beschlossen |
+| [W-007](W-007-workplace-communication/SUMMARY.md) | Persönlicher Arbeitsplatz und Activity-basierte Kommunikation | Fachlich beschlossen |
+| [W-008](W-008-activity-templates/SUMMARY.md) | Verbindliche Activity-Templates und kombinierbare Gerüstleistungs-Overlays | Fachlich beschlossen |

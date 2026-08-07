@@ -1,16 +1,23 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { ActivityDialog, type ActivityInput } from "@/components/activities/activity-dialog";
 import { AppShell } from "@/components/layout/app-shell";
-import { readProjectCockpit, readProjectCore, readProjects, readSiteVisits, writeProjectCockpit, writeSiteVisits } from "@/lib/local-storage";
+import { projectTabs, ProjectWorkspace, type ProjectTab } from "@/components/projects/project-tabs";
+import { inferContextOverlays, resolveActivityTemplate } from "@/lib/activity-templates";
+import { readActivities, readProjectCockpit, readProjectCore, readProjects, readSiteVisits, writeActivities, writeProjectCockpit, writeProjects } from "@/lib/local-storage";
+import { getProjectActivities } from "@/lib/project-activities";
+import type { Activity } from "@/types/activity";
+import type { ProjectDocument } from "@/types/document";
+import type { MaterialEntry } from "@/types/material";
+import type { ProjectNote } from "@/types/note";
+import type { ProjectPhoto } from "@/types/photo";
 import type { Project } from "@/types/project";
 import { emptyProjectCockpit, type ProjectCockpitData } from "@/types/project-cockpit";
-import type { ProjectDocument } from "@/types/document";
-import type { ProjectPhoto } from "@/types/photo";
-import { siteVisitTypes, type SiteVisit, type SiteVisitType } from "@/types/site-visit";
+import type { MeasurementEntry } from "@/types/project-core";
+import type { SiteVisit } from "@/types/site-visit";
 
 export default function ProjectPage() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -18,9 +25,13 @@ export default function ProjectPage() {
   const [visits, setVisits] = useState<SiteVisit[]>([]);
   const [photos, setPhotos] = useState<ProjectPhoto[]>([]);
   const [documents, setDocuments] = useState<ProjectDocument[]>([]);
-  const [hasMeasurements, setHasMeasurements] = useState(false);
+  const [notes, setNotes] = useState<ProjectNote[]>([]);
+  const [measurements, setMeasurements] = useState<MeasurementEntry[]>([]);
+  const [materialEntries, setMaterialEntries] = useState<MaterialEntry[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [cockpit, setCockpit] = useState<ProjectCockpitData>(() => emptyProjectCockpit(projectId));
-  const [selectorOpen, setSelectorOpen] = useState(false);
+  const [activityDialogOpen, setActivityDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<ProjectTab>("Übersicht");
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -28,124 +39,50 @@ export default function ProjectPage() {
       const store = readProjectCore();
       setProject(readProjects().find((item) => item.id === projectId) ?? null);
       setVisits(readSiteVisits().filter((visit) => visit.projectId === projectId));
-      setPhotos(store.photos.filter((photo) => photo.projectId === projectId).sort((a, b) => b.timestamp.localeCompare(a.timestamp)));
-      setDocuments(store.documents.filter((document) => document.projectId === projectId));
-      setHasMeasurements(store.measurements.some((measurement) => measurement.projectId === projectId));
+      setPhotos(store.photos.filter((item) => item.projectId === projectId).sort((a, b) => b.timestamp.localeCompare(a.timestamp)));
+      setDocuments(store.documents.filter((item) => item.projectId === projectId));
+      setNotes(store.notes.filter((item) => item.projectId === projectId));
+      setMeasurements(store.measurements.filter((item) => item.projectId === projectId));
+      setMaterialEntries(store.materialEntries.filter((item) => item.projectId === projectId));
+      setActivities(getProjectActivities(store, projectId));
       setCockpit(readProjectCockpit(projectId));
     }, 0);
     return () => window.clearTimeout(timer);
   }, [projectId]);
 
-  const sortedVisits = useMemo(() => [...visits].sort((a, b) => b.date.localeCompare(a.date)), [visits]);
-  const lastVisit = sortedVisits[0];
-  const checkpoints = project ? [
-    { label: "Fotos vorhanden", complete: photos.length > 0 },
-    { label: "Maße vorhanden", complete: hasMeasurements },
-    { label: "Ansprechpartner vorhanden", complete: Boolean(project.contactName) },
-    { label: "Unterlagen vorhanden", complete: documents.length > 0 },
-    { label: "Montageanweisung vorhanden", complete: documents.some((item) => item.type === "Montageanweisung") },
-    { label: "Gefährdungsbeurteilung vorhanden", complete: documents.some((item) => item.type === "Gefährdungsbeurteilung") },
-  ] : [];
+  const checkpoints = useMemo(() => project ? [photos.length > 0, measurements.length > 0, Boolean(project.contactName), documents.length > 0, documents.some((item) => item.type === "Montageanweisung"), documents.some((item) => item.type === "Gefährdungsbeurteilung")] : [], [project, photos, measurements, documents]);
 
-  function updateSection<S extends "operational" | "nextDeployment" | "technical" | "commercial", K extends keyof ProjectCockpitData[S]>(section: S, key: K, value: ProjectCockpitData[S][K]) {
-    setCockpit((current) => ({ ...current, [section]: { ...current[section], [key]: value } }));
-    setSaved(false);
-  }
-
-  function saveCockpit() {
-    const next = { ...cockpit, updatedAt: new Date().toISOString() };
-    writeProjectCockpit(next);
-    setCockpit(next);
-    setSaved(true);
-  }
-
-  function createVisit(type: SiteVisitType) {
-    const visit: SiteVisit = { id: window.crypto.randomUUID(), projectId, date: new Date().toISOString(), type, status: "Neu" };
-    writeSiteVisits([visit, ...readSiteVisits()]);
-    setVisits((current) => [visit, ...current]);
-    setSelectorOpen(false);
-  }
+  function createActivity(input: ActivityInput) { const now = new Date().toISOString(); const activityId = window.crypto.randomUUID(); const template = resolveActivityTemplate({ type: input.type, services: project?.services, contexts: inferContextOverlays(input.details), activity: { status: "geplant", details: input.details, checklist: [] }, documents }); const activity: Activity = { id: activityId, projectId, ...input, status: "geplant", plannedAt: new Date(input.plannedAt).toISOString(), startedAt: null, endedAt: null, responsibleId: null, result: null, checklist: template.checklist.map((item) => ({ id: item.id, label: item.label, checked: false })), comments: [], openItems: [], history: [{ id: window.crypto.randomUUID(), kind: "erstellt", text: `Activity aus Template ${template.label} erstellt`, createdAt: now }], createdAt: now, updatedAt: now }; writeActivities([activity, ...readActivities()]); setActivities(getProjectActivities(readProjectCore(), projectId)); setActivityDialogOpen(false); }
+  function updateOperational(key: "openWork" | "openQuestions", value: string) { setCockpit((current) => ({ ...current, operational: { ...current.operational, [key]: value } })); setSaved(false); }
+  function saveCockpit() { const next = { ...cockpit, updatedAt: new Date().toISOString() }; writeProjectCockpit(next); setCockpit(next); setSaved(true); }
+  function prepareOffer() { if (!project) return; const today = new Date().toISOString().slice(0, 10); const next: Project = { ...project, phase: "Angebot", inquiryStatus: "Angebot vorbereitet", offer: { number: `ANG-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`, date: today, status: "Entwurf", requestedExecutionDate: project.requestedDate, estimatedCrewCount: project.estimatedCrewCount, estimatedMaterial: project.estimatedMaterial } }; writeProjects(readProjects().map((item) => item.id === project.id ? next : item)); setProject(next); }
+  function confirmOffer() { if (!project?.offer || !window.confirm("Auftrag wirklich bestätigen und diesen Vorgang verbindlich als Projekt übernehmen?")) return; const acceptedAt = new Date().toISOString(); const next: Project = { ...project, recordKind: "project", phase: "Auftrag bestätigt", status: "Aktiv", offer: { ...project.offer, status: "angenommen", acceptedAt } }; writeProjects(readProjects().map((item) => item.id === project.id ? next : item)); const nextCockpit = { ...cockpit, updatedAt: acceptedAt, commercial: { ...cockpit.commercial, offerStatus: "Angenommen" } }; writeProjectCockpit(nextCockpit); setCockpit(nextCockpit); setProject(next); setActiveTab("Übersicht"); }
 
   if (project === undefined) return <PageState text="Projekt wird geladen …" />;
   if (project === null) return <PageState text="Projekt nicht gefunden." />;
 
+  const openActivities = activities.filter((item) => !["abgeschlossen", "storniert"].includes(item.status));
+  const latestActivity = [...activities].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+  const preparationPercent = checkpoints.length ? Math.round(checkpoints.filter(Boolean).length / checkpoints.length * 100) : 0;
   const address = [project.address, [project.postalCode, project.city].filter(Boolean).join(" ")].filter(Boolean).join(", ");
 
-  return (
-    <AppShell>
-      <div className="relative min-h-full overflow-hidden text-white">
-        <Glow />
-        <div className="relative mx-auto min-h-screen w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
-          <Link href="/" className="text-sm text-slate-500 transition hover:text-cyan-300">← Zurück zu Heute</Link>
-
-          <header className="mt-5 rounded-3xl border border-white/10 bg-white/[0.035] p-5 shadow-xl shadow-black/10 sm:p-8">
-            <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-cyan-300">{address || "Baustellenadresse noch nicht hinterlegt"}</p>
-                <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">{project.name}</h1>
-                <div className="mt-4 flex flex-wrap gap-2"><Badge>{project.status}</Badge><Badge muted>{project.type}</Badge>{project.services.map((service) => <Badge key={service} muted>{service}</Badge>)}{project.services.length === 0 && <span className="text-xs text-slate-600">Keine Leistungen hinterlegt</span>}</div>
-              </div>
-              <div className="grid shrink-0 gap-2 text-sm sm:grid-cols-2 lg:w-[28rem]">
-                <Contact label="Kunde" value={project.customer} />
-                <Contact label="Ansprechpartner" value={project.contactName} />
-                <Contact label="Telefon" value={project.contactPhone} href={project.contactPhone ? `tel:${project.contactPhone}` : undefined} />
-                <Contact label="E-Mail" value={project.contactEmail} href={project.contactEmail ? `mailto:${project.contactEmail}` : undefined} />
-              </div>
-            </div>
-          </header>
-
-          <section className="py-8" aria-labelledby="current-heading">
-            <SectionTitle eyebrow="Cockpit" title="Aktueller Baustellenstand" id="current-heading" />
-            <div className="mt-5 grid gap-4 lg:grid-cols-3">
-              <Card title="Status und Aktivität"><DataRow label="Projektstatus" value={project.status} /><DataRow label="Letzter Besuch" value={lastVisit ? `${lastVisit.type} · ${formatDate(lastVisit.date)}` : undefined} /><DataRow label="Nächster Einsatz" value={cockpit.nextDeployment.plannedDate ? `${cockpit.nextDeployment.type || "Einsatz"} · ${formatDay(cockpit.nextDeployment.plannedDate)}` : undefined} /></Card>
-              <Card title="Offene Arbeiten"><EditableArea value={cockpit.operational.openWork} placeholder="Noch keine offenen Arbeiten erfasst." onChange={(value) => updateSection("operational", "openWork", value)} /></Card>
-              <Card title="Offene Fragen"><EditableArea value={cockpit.operational.openQuestions} placeholder="Keine offenen Fragen erfasst." onChange={(value) => updateSection("operational", "openQuestions", value)} /></Card>
-            </div>
-            <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5"><h3 className="text-sm font-semibold text-slate-200">Letzte Fotos</h3>{photos.length ? <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">{photos.slice(0, 3).map((photo) => <Image key={photo.id} src={photo.dataUrl} alt={photo.description || photo.fileName} width={420} height={280} unoptimized className="aspect-[3/2] w-full rounded-xl object-cover" />)}</div> : <Empty text="Noch keine Baustellenfotos vorhanden." />}</div>
-          </section>
-
-          <section className="border-t border-white/[0.08] py-8" aria-labelledby="deployment-heading">
-            <SectionTitle eyebrow="Vorbereitung" title="Nächster Einsatz" id="deployment-heading" />
-            <div className="mt-5 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-              <Card title="Einsatzdaten"><div className="grid gap-4 sm:grid-cols-2"><Field label="Einsatzart" value={cockpit.nextDeployment.type} onChange={(value) => updateSection("nextDeployment", "type", value)} placeholder="z. B. Montage" /><Field label="Geplantes Datum" type="date" value={cockpit.nextDeployment.plannedDate} onChange={(value) => updateSection("nextDeployment", "plannedDate", value)} /><Field label="Geplante Arbeiten" multiline className="sm:col-span-2" value={cockpit.nextDeployment.plannedWork} onChange={(value) => updateSection("nextDeployment", "plannedWork", value)} placeholder="Arbeiten für den nächsten Einsatz beschreiben" /><div className="sm:col-span-2 rounded-xl border border-dashed border-white/10 px-4 py-3"><p className="text-xs text-slate-500">Verantwortliche Kolonne</p><p className="mt-1 text-sm text-slate-600">Noch nicht disponiert · spätere Vorbereitung</p></div></div></Card>
-              <Card title="Informationsstand"><ul className="space-y-2">{checkpoints.map((item) => <li key={item.label} className="flex items-center justify-between gap-3 rounded-xl bg-white/[0.025] px-3 py-2.5 text-sm"><span className="text-slate-300">{item.label}</span><span className={item.complete ? "text-emerald-300" : "text-amber-300"}>{item.complete ? "Vorhanden" : "Fehlt"}</span></li>)}</ul><div className="mt-4 grid grid-cols-2 gap-3"><SummaryCount label="Vorhanden" count={checkpoints.filter((item) => item.complete).length} good /><SummaryCount label="Fehlend" count={checkpoints.filter((item) => !item.complete).length} /></div></Card>
-            </div>
-          </section>
-
-          <section className="border-t border-white/[0.08] py-8" aria-labelledby="technical-heading">
-            <SectionTitle eyebrow="Fachdaten" title="Technische Projektdaten" id="technical-heading" />
-            <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6"><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"><Field label="Gerüstsystem" value={cockpit.technical.scaffoldSystem} onChange={(value) => updateSection("technical", "scaffoldSystem", value)} /><Field label="Systembreite" value={cockpit.technical.systemWidth} onChange={(value) => updateSection("technical", "systemWidth", value)} placeholder="z. B. 0,73 m" /><Field label="Gerüstlängen" value={cockpit.technical.scaffoldLengths} onChange={(value) => updateSection("technical", "scaffoldLengths", value)} /><Field label="Gerüsthöhen" value={cockpit.technical.scaffoldHeights} onChange={(value) => updateSection("technical", "scaffoldHeights", value)} /><Field label="Gerüstflächen" value={cockpit.technical.scaffoldAreas} onChange={(value) => updateSection("technical", "scaffoldAreas", value)} /><Field label="Aufmaßstatus" value={cockpit.technical.measurementStatus} onChange={(value) => updateSection("technical", "measurementStatus", value)} /><Field label="Geplantes Aufmaß" type="date" value={cockpit.technical.plannedMeasurement} onChange={(value) => updateSection("technical", "plannedMeasurement", value)} /><Field label="Geplanter Aufbau" type="date" value={cockpit.technical.plannedAssembly} onChange={(value) => updateSection("technical", "plannedAssembly", value)} /><Field label="Geplanter Umbau" type="date" value={cockpit.technical.plannedConversion} onChange={(value) => updateSection("technical", "plannedConversion", value)} /><Field label="Geplanter Abbau" type="date" value={cockpit.technical.plannedDismantling} onChange={(value) => updateSection("technical", "plannedDismantling", value)} /><div className="sm:col-span-2 lg:col-span-2"><p className="mb-2 text-sm font-medium text-slate-300">Bestellte Leistungen</p><div className="min-h-12 rounded-xl border border-white/10 bg-[#070b14] px-4 py-3 text-sm text-slate-400">{project.services.join(", ") || "Noch keine Leistungen hinterlegt."}</div></div></div></div>
-          </section>
-
-          <section className="border-t border-white/[0.08] py-8" aria-labelledby="commercial-heading">
-            <SectionTitle eyebrow="Kaufmännisch" title="Kaufmännischer Überblick" id="commercial-heading" />
-            <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6"><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"><Field label="Angebotsstatus" value={cockpit.commercial.offerStatus} onChange={(value) => updateSection("commercial", "offerStatus", value)} /><Field label="Abschlagsrechnungsstatus" value={cockpit.commercial.progressInvoiceStatus} onChange={(value) => updateSection("commercial", "progressInvoiceStatus", value)} /><Field label="Letzte Abschlagsrechnung" type="date" value={cockpit.commercial.lastProgressInvoiceDate} onChange={(value) => updateSection("commercial", "lastProgressInvoiceDate", value)} /><Field label="Schlussrechnungsstatus" value={cockpit.commercial.finalInvoiceStatus} onChange={(value) => updateSection("commercial", "finalInvoiceStatus", value)} /><Field label="Offene Nachträge" value={cockpit.commercial.openChanges} onChange={(value) => updateSection("commercial", "openChanges", value)} /><Field label="Abrechenbare Mietmengen" value={cockpit.commercial.billableRentalQuantities} onChange={(value) => updateSection("commercial", "billableRentalQuantities", value)} /><Field label="Beginn der Mietzeit" type="date" value={cockpit.commercial.rentalStart} onChange={(value) => updateSection("commercial", "rentalStart", value)} /><Field label="Abmeldedatum" type="date" value={cockpit.commercial.deregistrationDate} onChange={(value) => updateSection("commercial", "deregistrationDate", value)} /><Field label="Geplanter Abbau" type="date" value={cockpit.technical.plannedDismantling} onChange={(value) => updateSection("technical", "plannedDismantling", value)} /></div></div>
-          </section>
-
-          <div className="sticky bottom-4 z-20 ml-auto flex w-fit items-center gap-3 rounded-2xl border border-white/10 bg-[#0b111e]/95 p-2 shadow-2xl backdrop-blur"><span aria-live="polite" className="pl-2 text-xs text-emerald-300">{saved ? "Änderungen gespeichert" : ""}</span><button type="button" onClick={saveCockpit} className="min-h-11 rounded-xl bg-cyan-300 px-5 text-sm font-semibold text-slate-950 hover:bg-cyan-200">Projektdaten speichern</button></div>
-
-          <section className="border-t border-white/[0.08] py-8" aria-labelledby="visits-heading">
-            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><SectionTitle eyebrow="Dokumentation" title="Baustellenbesuche" id="visits-heading" /><button onClick={() => setSelectorOpen(true)} className="min-h-12 rounded-xl bg-cyan-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300">+ Neuer Baustellenbesuch</button></div>
-            {sortedVisits.length === 0 ? <div className="mt-6 rounded-2xl border border-dashed border-white/15 bg-white/[0.025] px-6 py-14 text-center text-sm text-slate-500">Noch keine Baustellenbesuche.</div> : <div className="mt-6 grid gap-3">{sortedVisits.map((visit) => <Link key={visit.id} href={`/projects/${projectId}/visits/${visit.id}`} className="group flex min-h-20 items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:border-cyan-300/30 hover:bg-white/[0.06]"><div><p className="font-semibold text-slate-100 transition group-hover:text-cyan-100">{visit.type}</p><p className="mt-1 text-sm text-slate-500">{formatDate(visit.date)}</p></div><div className="flex items-center gap-4"><span className="rounded-full bg-cyan-400/10 px-3 py-1 text-xs text-cyan-300">{visit.status}</span><span className="text-slate-600 group-hover:text-cyan-300" aria-hidden="true">→</span></div></Link>)}</div>}
-          </section>
-        </div>
-
-        {selectorOpen && <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#03050a]/85 p-4 backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="visit-selector-title" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectorOpen(false); }}><div className="w-full max-w-xl rounded-3xl border border-white/10 bg-[#0b111e] p-6 shadow-2xl sm:p-8"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">Neuer Termin</p><h2 id="visit-selector-title" className="mt-1 text-2xl font-semibold">Besuchsart auswählen</h2></div><button onClick={() => setSelectorOpen(false)} aria-label="Auswahl schließen" className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 text-xl text-slate-400 hover:bg-white/5 hover:text-white">×</button></div><div className="mt-6 grid gap-3 sm:grid-cols-2">{siteVisitTypes.map((type) => <button key={type} onClick={() => createVisit(type)} className="min-h-14 rounded-xl border border-white/10 bg-white/[0.025] p-4 text-left text-sm font-medium text-slate-300 transition hover:border-cyan-300/40 hover:bg-cyan-400/[0.07] hover:text-cyan-200">{type}</button>)}</div></div></div>}
+  return <AppShell><div className="min-h-full bg-[#070b14] text-white">
+    <div className="sticky top-0 z-40 border-b border-white/[0.08] bg-[#080d17]/95 backdrop-blur-xl">
+      <div className="mx-auto max-w-[1480px] px-5 pt-4 sm:px-8 lg:px-10">
+        <div className="mb-3 flex items-center justify-between gap-4"><Link href="/projects" className="text-xs text-slate-500 hover:text-cyan-300">← Projekte</Link><button onClick={() => setActivityDialogOpen(true)} className="rounded-lg bg-cyan-300 px-3 py-2 text-xs font-semibold text-slate-950 hover:bg-cyan-200">+ Aktivität</button></div>
+        <header className="pb-5"><div className="flex flex-col justify-between gap-5 xl:flex-row xl:items-start"><div className="min-w-0"><p className="truncate text-xs font-medium text-cyan-300">{address || "Baustellenadresse nicht hinterlegt"}</p><div className="mt-2 flex flex-wrap items-center gap-3"><h1 className="truncate text-2xl font-semibold tracking-tight sm:text-3xl">{project.name}</h1><Lifecycle phase={project.phase} /></div></div><div className="grid grid-cols-3 gap-5 sm:grid-cols-6 xl:min-w-[660px]"><HeaderFact label="Bauherr" /><HeaderFact label="Kunde" value={project.customer} /><HeaderFact label="Bauleiter" /><HeaderFact label="Vorarbeiter" /><HeaderFact label="Kolonne" /><HeaderFact label="Vorbereitung" value={`${preparationPercent} %`} /></div></div>
+          <div className="mt-5 grid gap-5 border-t border-white/[0.07] pt-4 sm:grid-cols-[1.3fr_1fr] xl:grid-cols-[1.5fr_1fr_1.35fr_0.65fr]"><HeaderProgress phase={project.phase} /><HeaderFact label="Nächster Termin" value={cockpit.nextDeployment.plannedDate ? formatDay(cockpit.nextDeployment.plannedDate) : undefined} /><HeaderFact label="Letzte Activity" value={latestActivity ? `${latestActivity.title} · ${formatDay(latestActivity.updatedAt)}` : undefined} /><HeaderFact label="Offen" value={`${openActivities.length} Activities`} /></div>
+        </header>
+        <nav aria-label="Projektbereiche" className="scrollbar-hidden flex gap-1 overflow-x-auto border-t border-white/[0.07] py-2">{projectTabs.map((tab) => <button key={tab} onClick={() => setActiveTab(tab)} aria-current={activeTab === tab ? "page" : undefined} className={`shrink-0 rounded-lg px-3 py-2.5 text-xs font-medium transition ${activeTab === tab ? "bg-white text-slate-950" : "text-slate-500 hover:bg-white/[0.05] hover:text-white"}`}>{tab}</button>)}</nav>
       </div>
-    </AppShell>
-  );
+    </div>
+    <div className="mx-auto max-w-[1480px] px-5 sm:px-8 lg:px-10"><ProjectWorkspace tab={activeTab} data={{ project, activities, photos, documents, notes, measurements, materialEntries, visits, cockpit, preparationPercent }} onOpenActivity={() => setActivityDialogOpen(true)} onPrepareOffer={prepareOffer} onConfirmOffer={confirmOffer} onSaveCockpit={saveCockpit} onChangeOpenWork={(value) => updateOperational("openWork", value)} onChangeOpenQuestions={(value) => updateOperational("openQuestions", value)} saved={saved} /></div>
+    {activityDialogOpen && <ActivityDialog services={project?.services} onCreate={createActivity} onClose={() => setActivityDialogOpen(false)} />}
+  </div></AppShell>;
 }
 
-function SectionTitle({ eyebrow, title, id }: { eyebrow: string; title: string; id: string }) { return <div><p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{eyebrow}</p><h2 id={id} className="mt-1 text-2xl font-semibold">{title}</h2></div>; }
-function Card({ title, children }: { title: string; children: React.ReactNode }) { return <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"><h3 className="text-sm font-semibold text-slate-200">{title}</h3><div className="mt-4 space-y-3">{children}</div></div>; }
-function Badge({ children, muted = false }: { children: React.ReactNode; muted?: boolean }) { return <span className={`rounded-lg border px-3 py-1.5 text-xs ${muted ? "border-white/[0.08] bg-white/[0.04] text-slate-300" : "border-emerald-300/10 bg-emerald-400/10 text-emerald-300"}`}>{children}</span>; }
-function Contact({ label, value, href }: { label: string; value?: string; href?: string }) { return <div className="rounded-xl bg-black/10 px-3 py-2"><p className="text-[11px] text-slate-600">{label}</p>{value ? href ? <a href={href} className="mt-0.5 block break-all text-sm text-cyan-300 hover:text-cyan-200">{value}</a> : <p className="mt-0.5 text-sm text-slate-300">{value}</p> : <p className="mt-0.5 text-xs text-slate-600">Noch nicht hinterlegt</p>}</div>; }
-function DataRow({ label, value }: { label: string; value?: string }) { return <div><p className="text-xs text-slate-600">{label}</p><p className="mt-1 text-sm text-slate-300">{value || "Noch keine Daten vorhanden."}</p></div>; }
-function Empty({ text }: { text: string }) { return <p className="mt-4 rounded-xl border border-dashed border-white/10 px-4 py-6 text-center text-sm text-slate-600">{text}</p>; }
-function EditableArea({ value, placeholder, onChange }: { value: string; placeholder: string; onChange: (value: string) => void }) { return <textarea value={value} onChange={(event) => onChange(event.target.value)} rows={4} placeholder={placeholder} className="w-full resize-y rounded-xl border border-white/10 bg-[#070b14] px-3 py-2.5 text-sm text-slate-200 outline-none placeholder:text-slate-600 focus:border-cyan-300/50" />; }
-function Field({ label, value, onChange, type = "text", placeholder, multiline = false, className = "" }: { label: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string; multiline?: boolean; className?: string }) { const classes = "min-h-12 w-full rounded-xl border border-white/10 bg-[#070b14] px-3 py-2.5 text-sm text-slate-200 outline-none placeholder:text-slate-700 focus:border-cyan-300/50"; return <label className={className}><span className="mb-2 block text-sm font-medium text-slate-300">{label}</span>{multiline ? <textarea rows={3} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className={`${classes} resize-y`} /> : <input type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className={classes} />}</label>; }
-function SummaryCount({ label, count, good = false }: { label: string; count: number; good?: boolean }) { return <div className={`rounded-xl border p-3 ${good ? "border-emerald-300/10 bg-emerald-400/[0.04]" : "border-amber-300/10 bg-amber-400/[0.04]"}`}><p className="text-xs text-slate-500">{label}</p><p className={`mt-1 text-xl font-semibold ${good ? "text-emerald-300" : "text-amber-300"}`}>{count}</p></div>; }
-function formatDate(date: string) { return new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short" }).format(new Date(date)); }
-function formatDay(date: string) { return new Intl.DateTimeFormat("de-DE", { dateStyle: "medium" }).format(new Date(`${date}T12:00:00`)); }
-function Glow() { return <div className="pointer-events-none absolute inset-0"><div className="absolute left-[-12rem] top-[-10rem] h-[28rem] w-[28rem] rounded-full bg-cyan-500/10 blur-3xl" /><div className="absolute bottom-[-14rem] right-[-10rem] h-[34rem] w-[34rem] rounded-full bg-violet-600/10 blur-3xl" /></div>; }
+function HeaderFact({ label, value }: { label: string; value?: string }) { return <div className="min-w-0"><p className="text-[10px] uppercase tracking-[0.13em] text-slate-600">{label}</p><p className="mt-1 truncate text-xs font-medium text-slate-300">{value || "Nicht hinterlegt"}</p></div>; }
+function Lifecycle({ phase }: { phase?: Project["phase"] }) { const tone = phase === "Aufbau" ? "bg-amber-400/10 text-amber-300" : phase === "Nutzung" ? "bg-emerald-400/10 text-emerald-300" : phase === "Umbau" ? "bg-violet-400/10 text-violet-300" : phase === "Abbau" ? "bg-orange-400/10 text-orange-300" : phase === "Abrechnung" ? "bg-blue-400/10 text-blue-300" : "bg-cyan-400/10 text-cyan-300"; return <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.1em] ${tone}`}>{phase || "Status offen"}</span>; }
+function HeaderProgress({ phase }: { phase?: Project["phase"] }) { const steps = ["Angebot", "Vorbereitung", "Projekt", "Abrechnung", "Archiv"]; const current = phase === "archiviert" ? 4 : phase === "abgeschlossen" || phase === "Abrechnung" ? 3 : phase === "Anfrage" || phase === "Angebot" ? 0 : phase === "Auftrag bestätigt" || phase === "Vorbereitung" ? 1 : 2; return <div><p className="text-[10px] uppercase tracking-[0.13em] text-slate-600">Fortschritt</p><div className="mt-2 flex gap-1.5">{steps.map((step, index) => <div key={step} title={step} className={`h-1.5 flex-1 rounded-full ${index <= current ? "bg-cyan-300" : "bg-white/[0.08]"}`} />)}</div></div>; }
+function formatDay(value: string) { return new Intl.DateTimeFormat("de-DE", { dateStyle: "medium" }).format(new Date(value.includes("T") ? value : `${value}T12:00:00`)); }
 function PageState({ text }: { text: string }) { return <AppShell><div className="flex min-h-screen items-center justify-center px-6 text-sm text-slate-500">{text}</div></AppShell>; }

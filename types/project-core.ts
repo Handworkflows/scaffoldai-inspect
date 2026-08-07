@@ -8,7 +8,7 @@ import type { SiteVisit } from "@/types/site-visit";
 import type { ProjectCockpitData } from "@/types/project-cockpit";
 import type { Activity } from "@/types/activity";
 
-export const PROJECT_CORE_SCHEMA_VERSION = 3 as const;
+export const PROJECT_CORE_SCHEMA_VERSION = 4 as const;
 
 export interface CoreProject {
   id: string;
@@ -30,6 +30,7 @@ export interface CoreProject {
     email?: string;
   };
   status: Project["status"];
+  lifecycle?: Pick<Project, "recordKind" | "phase" | "inquiryStatus" | "requestedDate" | "openQuestions" | "roughEffort" | "specialConstructions" | "permits" | "estimatedMaterial" | "estimatedCrewCount" | "offer">;
 }
 
 export interface CoreSiteVisit extends SiteVisit {

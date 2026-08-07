@@ -34,6 +34,13 @@ export default function Home() {
   const [step, setStep] = useState(1);
   const [draft, setDraft] = useState<ProjectDraft>(emptyDraft);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [liveNow, setLiveNow] = useState<Date | null>(null);
+
+  useEffect(() => {
+    const initialClock = window.setTimeout(() => setLiveNow(new Date()), 0);
+    const clock = window.setInterval(() => setLiveNow(new Date()), 30_000);
+    return () => { window.clearTimeout(initialClock); window.clearInterval(clock); };
+  }, []);
 
   useEffect(() => {
     const loadProjects = window.setTimeout(() => {
@@ -54,8 +61,16 @@ export default function Home() {
     setWizardOpen(true);
   }
 
+  useEffect(() => {
+    const handleNewProject = () => openWizard();
+    window.addEventListener("scaffoldai:new-project", handleNewProject);
+    if (new URLSearchParams(window.location.search).get("newProject") === "1") handleNewProject();
+    return () => window.removeEventListener("scaffoldai:new-project", handleNewProject);
+  }, []);
+
   function closeWizard() {
     setWizardOpen(false);
+    window.history.replaceState(null, "", "/");
   }
 
   function continueWizard(event: FormEvent) {
@@ -96,6 +111,7 @@ export default function Home() {
     writeProjects(nextProjects);
     setProjects(nextProjects);
     setWizardOpen(false);
+    window.history.replaceState(null, "", "/");
   }
 
   const today = localDateKey(new Date());
@@ -104,8 +120,10 @@ export default function Home() {
   const tomorrow = localDateKey(tomorrowDate);
   const projectById = new Map(projects.map((project) => [project.id, project]));
   const cockpitByProject = new Map(cockpits.map((cockpit) => [cockpit.projectId, cockpit]));
-  const todayVisits = visits.filter((visit) => localDateKey(new Date(visit.date)) === today).sort((a, b) => a.date.localeCompare(b.date));
-  const criticalEvents: PriorityEvent[] = cockpits.flatMap((cockpit) => {
+  const executionIds = new Set(projects.filter((project) => project.recordKind === "project").map((project) => project.id));
+  const salesIds = new Set(projects.filter((project) => project.recordKind === "inquiry").map((project) => project.id));
+  const todayVisits = visits.filter((visit) => executionIds.has(visit.projectId) && localDateKey(new Date(visit.date)) === today).sort((a, b) => a.date.localeCompare(b.date));
+  const criticalEvents: PriorityEvent[] = cockpits.filter((cockpit) => executionIds.has(cockpit.projectId)).flatMap((cockpit) => {
     const events: PriorityEvent[] = [];
     const questions = cockpit.operational.openQuestions.trim();
     const work = cockpit.operational.openWork.trim();
@@ -115,17 +133,19 @@ export default function Home() {
     if (isOpen(cockpit.technical.measurementStatus) && cockpit.technical.plannedMeasurement && cockpit.technical.plannedMeasurement < today) events.push({ projectId: cockpit.projectId, title: "Aufmaß überfällig", detail: cockpit.technical.measurementStatus, priority: "red" });
     return events;
   }).sort((a, b) => priorityRank(a.priority) - priorityRank(b.priority));
-  const taskGroups: TaskGroup[] = [
-    { label: "Angebote", items: cockpits.filter((item) => isOpen(item.commercial.offerStatus)).map((item) => ({ projectId: item.projectId, detail: item.commercial.offerStatus })) },
-    { label: "Aufmaß", items: cockpits.filter((item) => isOpen(item.technical.measurementStatus)).map((item) => ({ projectId: item.projectId, detail: item.technical.measurementStatus })) },
-    { label: "Rechnungen", items: cockpits.flatMap((item) => [{ projectId: item.projectId, detail: item.commercial.progressInvoiceStatus }, { projectId: item.projectId, detail: item.commercial.finalInvoiceStatus }].filter((entry) => isOpen(entry.detail))) },
-    { label: "Rückrufe", items: cockpits.filter((item) => /rückruf|zurückrufen/i.test(item.operational.openQuestions)).map((item) => ({ projectId: item.projectId, detail: item.operational.openQuestions })) },
-    { label: "Nachträge", items: cockpits.filter((item) => isOpen(item.commercial.openChanges)).map((item) => ({ projectId: item.projectId, detail: item.commercial.openChanges })) },
+  const salesTaskGroups: TaskGroup[] = [
+    { label: "Angebote", items: projects.filter((item) => salesIds.has(item.id) && item.offer && !["angenommen", "abgelehnt", "abgelaufen"].includes(item.offer.status)).map((item) => ({ projectId: item.id, detail: `${item.offer?.status} · ${item.name}` })) },
+    { label: "Rückrufe", items: cockpits.filter((item) => salesIds.has(item.projectId) && /rückruf|zurückrufen/i.test(item.operational.openQuestions)).map((item) => ({ projectId: item.projectId, detail: item.operational.openQuestions })) },
   ];
-  const taskCount = taskGroups.reduce((sum, group) => sum + group.items.length, 0);
-  const relevantIds = new Set([...todayVisits.map((visit) => visit.projectId), ...criticalEvents.map((event) => event.projectId), ...taskGroups.flatMap((group) => group.items.map((item) => item.projectId)), ...cockpits.filter((cockpit) => cockpit.nextDeployment.plannedDate === today).map((cockpit) => cockpit.projectId)]);
-  const relevantProjects = projects.filter((project) => relevantIds.has(project.id));
-  const openOffers = cockpits.filter((cockpit) => isOpen(cockpit.commercial.offerStatus)).length;
+  const projectTaskGroups: TaskGroup[] = [
+    { label: "Aufmaß", items: cockpits.filter((item) => executionIds.has(item.projectId) && isOpen(item.technical.measurementStatus)).map((item) => ({ projectId: item.projectId, detail: item.technical.measurementStatus })) },
+    { label: "Rechnungen", items: cockpits.filter((item) => executionIds.has(item.projectId)).flatMap((item) => [{ projectId: item.projectId, detail: item.commercial.progressInvoiceStatus }, { projectId: item.projectId, detail: item.commercial.finalInvoiceStatus }].filter((entry) => isOpen(entry.detail))) },
+    { label: "Nachträge", items: cockpits.filter((item) => executionIds.has(item.projectId) && isOpen(item.commercial.openChanges)).map((item) => ({ projectId: item.projectId, detail: item.commercial.openChanges })) },
+  ];
+  const taskCount = [...salesTaskGroups, ...projectTaskGroups].reduce((sum, group) => sum + group.items.length, 0);
+  const relevantIds = new Set([...todayVisits.map((visit) => visit.projectId), ...criticalEvents.map((event) => event.projectId), ...projectTaskGroups.flatMap((group) => group.items.map((item) => item.projectId)), ...cockpits.filter((cockpit) => executionIds.has(cockpit.projectId) && cockpit.nextDeployment.plannedDate === today).map((cockpit) => cockpit.projectId)]);
+  const relevantProjects = projects.filter((project) => project.recordKind === "project" && relevantIds.has(project.id));
+  const openOffers = projects.filter((project) => project.recordKind === "inquiry" && project.offer && !["angenommen", "abgelehnt", "abgelaufen"].includes(project.offer.status)).length;
   const openInvoices = cockpits.filter((cockpit) => isOpen(cockpit.commercial.progressInvoiceStatus) || isOpen(cockpit.commercial.finalInvoiceStatus)).length;
   const openProgressInvoices = cockpits.filter((cockpit) => isOpen(cockpit.commercial.progressInvoiceStatus)).length;
   const openChanges = cockpits.filter((cockpit) => isOpen(cockpit.commercial.openChanges)).length;
@@ -140,23 +160,25 @@ export default function Home() {
           <div className="absolute bottom-[-14rem] right-[-10rem] h-[34rem] w-[34rem] rounded-full bg-violet-600/10 blur-3xl" />
         </div>
 
-        <div className="relative mx-auto min-h-screen w-full max-w-6xl px-6 py-8 lg:px-10 xl:px-12">
-          <header className="flex flex-col justify-between gap-5 border-b border-white/[0.07] pb-6 sm:flex-row sm:items-end">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-cyan-300">{formatToday()}</p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Guten Morgen</h1>
-              <p className="mt-2 text-sm text-slate-500">Das ist heute wichtig.</p>
+        <div className="relative mx-auto min-h-screen w-full max-w-[1480px] px-5 py-9 sm:px-8 lg:px-10">
+          <header className="border-b border-white/[0.07] pb-6">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.18em] text-cyan-300">{liveNow ? greetingFor(liveNow) : "Persönlicher Arbeitsplatz"}</p>
+                <h1 className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">Heute</h1>
+                <p className="mt-2 text-sm capitalize text-slate-500">{liveNow ? formatToday(liveNow) : "Datum wird geladen …"}</p>
+              </div>
+              <time dateTime={liveNow?.toISOString()} aria-live="polite" className="w-fit rounded-2xl border border-cyan-300/15 bg-cyan-400/[0.05] px-4 py-3 font-mono text-xl font-semibold tabular-nums text-cyan-200 sm:text-2xl">
+                {liveNow ? `${formatLiveTime(liveNow)} Uhr` : "--:-- Uhr"}
+              </time>
             </div>
-            <button onClick={openWizard} className="min-h-12 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:border-cyan-300/30 hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300">
-              + Neues Projekt
-            </button>
           </header>
 
           <section className="py-7" aria-labelledby="today-summary-heading">
             <h2 id="today-summary-heading" className="sr-only">Heute im Überblick</h2>
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
               <Metric label="Kolonnen" value="–" note="Keine Kolonnenplanung vorhanden" />
-              <Metric label="Aktive Baustellen" value={projects.filter((project) => project.status === "Aktiv").length} />
+              <Metric label="Aktive Baustellen" value={projects.filter((project) => project.recordKind === "project" && project.status === "Aktiv").length} />
               <Metric label="Kritische Probleme" value={criticalEvents.length} critical={criticalEvents.length > 0} />
               <Metric label="Offene Aufgaben" value={taskCount} />
               <Metric label="Offene Angebote" value={openOffers} />
@@ -164,24 +186,31 @@ export default function Home() {
             </div>
           </section>
 
-          <TodaySection title="Kolonnen heute" subtitle="Heutige Baustelleneinsätze aus den geplanten Besuchen.">
-            {todayVisits.length ? <div className="grid gap-3 lg:grid-cols-2">{todayVisits.map((visit) => { const project = projectById.get(visit.projectId); const cockpit = cockpitByProject.get(visit.projectId); const anomaly = cockpit?.operational.openQuestions || cockpit?.operational.openWork; return <button key={visit.id} onClick={() => router.push(`/projects/${visit.projectId}`)} className="min-h-40 rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left transition hover:border-cyan-300/30 hover:bg-white/[0.06]"><div className="flex items-start justify-between gap-3"><div><p className="text-xs text-slate-600">Kolonne noch nicht hinterlegt</p><h3 className="mt-1 font-semibold text-slate-100">{project?.name ?? "Projekt nicht gefunden"}</h3><p className="mt-1 text-xs text-slate-500">{project ? formatAddress(project) : "Adresse nicht verfügbar"}</p></div><span className="rounded-full bg-cyan-400/10 px-3 py-1 text-xs text-cyan-300">{visit.status}</span></div><div className="mt-4 flex items-center justify-between gap-3"><p className="text-sm text-slate-300">{visit.type}</p><p className="text-sm font-medium text-slate-400">{formatTime(visit.date)}</p></div><p className={`mt-3 rounded-lg px-3 py-2 text-xs ${anomaly ? "bg-amber-400/[0.07] text-amber-300" : "bg-emerald-400/[0.05] text-emerald-300"}`}>{anomaly || "Keine Auffälligkeit dokumentiert"}</p></button>; })}</div> : <EmptyState text="Für heute sind keine Kolonnen oder Baustellenbesuche geplant." />}
-          </TodaySection>
-
-          <TodaySection title="Sofort handeln" subtitle="Kritische Ereignisse, nach Dringlichkeit priorisiert.">
+          <TodaySection title="Kritische Aufgaben" subtitle="Was zuerst Aufmerksamkeit braucht – nach Dringlichkeit priorisiert.">
             {criticalEvents.length ? <div className="grid gap-3">{criticalEvents.map((event, index) => <ActionCard key={`${event.projectId}-${event.title}-${index}`} project={projectById.get(event.projectId)} title={event.title} detail={event.detail} priority={event.priority} onOpen={() => router.push(`/projects/${event.projectId}`)} />)}</div> : <div className="rounded-2xl border border-emerald-300/15 bg-emerald-400/[0.04] px-6 py-8 text-center text-sm text-emerald-300">Keine akuten kritischen Ereignisse dokumentiert.</div>}
           </TodaySection>
 
-          <TodaySection title="Heute erledigen" subtitle="Offene Arbeit aus den vorhandenen Projektständen.">
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">{taskGroups.map((group) => <TaskGroupCard key={group.label} group={group} projects={projectById} onOpen={(projectId) => router.push(`/projects/${projectId}`)} />)}</div>
+          <TodaySection title="Rückrufe" subtitle="Persönliche Rückrufbitten und Wiedervorlagen aus dem Vertrieb.">
+            <div className="grid gap-3">{salesTaskGroups.filter((group) => group.label === "Rückrufe").map((group) => <TaskGroupCard key={group.label} group={group} projects={projectById} onOpen={() => router.push("/inquiries")} />)}</div>
+          </TodaySection>
+
+          <TodaySection title="Kolonnen heute" subtitle="Heutige Baustelleneinsätze aus den geplanten Besuchen.">
+            {todayVisits.length ? <div className="grid gap-3 lg:grid-cols-2">{todayVisits.map((visit) => { const project = projectById.get(visit.projectId); const cockpit = cockpitByProject.get(visit.projectId); const anomaly = cockpit?.operational.openQuestions || cockpit?.operational.openWork; return <button key={visit.id} onClick={() => router.push(`/projects/${visit.projectId}`)} className="min-h-40 rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left transition duration-200 hover:-translate-y-0.5 hover:border-cyan-300/30 hover:bg-white/[0.06]"><div className="flex items-start justify-between gap-3"><div><p className="text-xs text-slate-600">Kolonne noch nicht hinterlegt</p><h3 className="mt-1 font-semibold text-slate-100">{project?.name ?? "Projekt nicht gefunden"}</h3><p className="mt-1 text-xs text-slate-500">{project ? formatAddress(project) : "Adresse nicht verfügbar"}</p></div><span className="rounded-full bg-cyan-400/10 px-3 py-1 text-xs text-cyan-300">{visit.status}</span></div><div className="mt-4 flex items-center justify-between gap-3"><p className="text-sm text-slate-300">{visit.type}</p><p className="text-sm font-medium text-slate-400">{formatTime(visit.date)}</p></div><p className={`mt-3 rounded-lg px-3 py-2 text-xs ${anomaly ? "bg-amber-400/[0.07] text-amber-300" : "bg-emerald-400/[0.05] text-emerald-300"}`}>{anomaly || "Keine Auffälligkeit dokumentiert"}</p></button>; })}</div> : <EmptyState text="Für heute sind keine Kolonnen oder Baustellenbesuche geplant." />}
           </TodaySection>
 
           <TodaySection title="Termine" subtitle="Geplante Baustellenbesuche im zeitlichen Überblick.">
             <div className="grid gap-3 sm:grid-cols-3"><ScheduleCard label="Heute" visits={todayVisits} /><ScheduleCard label="Morgen" visits={tomorrowVisits} /><ScheduleCard label="Diese Woche" visits={weekVisits} /></div>
           </TodaySection>
 
-          <TodaySection title="Aktuelle Projekte" subtitle="Nur Baustellen mit einem heutigen Termin oder offenem Handlungsbedarf.">
-            {!isLoaded ? <EmptyState text="Heutige Projekte werden geladen …" /> : relevantProjects.length ? <div className="grid gap-4 lg:grid-cols-2">{relevantProjects.map((project) => <TodayProjectCard key={project.id} project={project} cockpit={cockpitByProject.get(project.id)} lastVisit={latestVisit(visits, project.id)} onOpen={() => router.push(`/projects/${project.id}`)} />)}</div> : <EmptyState text={projects.length ? "Heute benötigt nach den vorhandenen Daten kein Projekt besondere Aufmerksamkeit." : "Noch keine Projekte vorhanden."} action={projects.length ? undefined : openWizard} />}
+          <TodaySection title="Angebote" subtitle="Offene Vertriebsarbeit und wahrscheinlicher Forecast.">
+            <div className="grid gap-3">{salesTaskGroups.filter((group) => group.label !== "Rückrufe").map((group) => <TaskGroupCard key={group.label} group={group} projects={projectById} onOpen={() => router.push("/inquiries")} />)}</div>
+          </TodaySection>
+
+          <TodaySection title="Projekte" subtitle="Verbindliche Aufgaben und aktuell relevante Baustellen.">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{projectTaskGroups.map((group) => <TaskGroupCard key={group.label} group={group} projects={projectById} onOpen={(projectId) => router.push(`/projects/${projectId}`)} />)}</div>
+            <div className="mt-4">
+            {!isLoaded ? <EmptyState text="Heutige Projekte werden geladen …" /> : relevantProjects.length ? <div className="grid gap-4 lg:grid-cols-2">{relevantProjects.map((project) => <TodayProjectCard key={project.id} project={project} cockpit={cockpitByProject.get(project.id)} lastVisit={latestVisit(visits, project.id)} onOpen={() => router.push(`/projects/${project.id}`)} />)}</div> : <EmptyState text={projects.length ? "Heute benötigt nach den vorhandenen Daten kein Projekt besondere Aufmerksamkeit." : "Noch keine Projekte vorhanden."} />}
+            </div>
           </TodaySection>
 
           <TodaySection title="Kaufmännischer Überblick" subtitle="Statusangaben aus den Projekt-Cockpits; keine Berechnung.">
@@ -232,8 +261,8 @@ function TodaySection({ title, subtitle, children }: { title: string; subtitle: 
   return <section className="border-t border-white/[0.07] py-8"><div className="mb-5"><h2 className="text-2xl font-semibold tracking-tight">{title}</h2><p className="mt-1 text-sm text-slate-500">{subtitle}</p></div>{children}</section>;
 }
 
-function EmptyState({ text, action }: { text: string; action?: () => void }) {
-  return <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-6 py-10 text-center"><p className="text-sm text-slate-500">{text}</p>{action && <button type="button" onClick={action} className="mt-4 min-h-11 rounded-xl bg-cyan-300 px-5 text-sm font-semibold text-slate-950">Erstes Projekt anlegen</button>}</div>;
+function EmptyState({ text }: { text: string }) {
+  return <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-6 py-10 text-center"><p className="text-sm text-slate-500">{text}</p></div>;
 }
 
 function ActionCard({ project, title, detail, priority = "green", onOpen }: { project?: Project; title: string; detail?: string; priority?: Priority; onOpen: () => void }) {
@@ -275,7 +304,9 @@ function localDateKey(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-function formatToday() { return new Intl.DateTimeFormat("de-DE", { weekday: "long", day: "2-digit", month: "long" }).format(new Date()); }
+function formatToday(date: Date) { return new Intl.DateTimeFormat("de-DE", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(date); }
+function formatLiveTime(date: Date) { return new Intl.DateTimeFormat("de-DE", { hour: "2-digit", minute: "2-digit", hour12: false }).format(date); }
+function greetingFor(date: Date) { const hour = date.getHours(); return hour < 11 ? "Guten Morgen" : hour < 18 ? "Guten Tag" : "Guten Abend"; }
 function formatTime(date: string) { return new Intl.DateTimeFormat("de-DE", { hour: "2-digit", minute: "2-digit" }).format(new Date(date)); }
 function formatDay(date: string) { return new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(`${date}T12:00:00`)); }
 

@@ -2,6 +2,21 @@
 
 Der Lebenszyklus verbindet kaufmännische, technische und logistische Arbeit in einer digitalen Baustellenakte. Übergaben übernehmen vorhandene Daten; sie verlangen keine erneute Erfassung.
 
+> **Einordnung nach W-005:** Der durchgängige fachliche Gegenstand heißt **Vorgang**. Anfrage, Angebot und Projekt sind Zustände beziehungsweise Sichten derselben Identität. Die Arbeitsbereiche Angebote, Einsatzvorbereitung und Betrieb führen keine getrennten Akten oder parallelen Workflows. Siehe [W-005 – Workflow Operating System](../workshops/W-005-workflow-operating-system/SUMMARY.md).
+
+> **Präzisierung durch EPIC-002:** Der verbindliche Statusfluss lautet **Angebot → Einsatzvorbereitung → Läuft → Abrechnung → Abgeschlossen → Archiviert**. Projekte und Buchhaltung sind eigene Arbeitsbereiche auf derselben Akte. Siehe [EPIC-002](../epics/EPIC-002-project-lifecycle-accounting-archive.md).
+
+## Lebenszyklusstatus
+
+- **Angebot:** unverbindlicher Vertriebsvorgang
+- **Einsatzvorbereitung:** bestätigter Auftrag ohne Montagefreigabe
+- **Läuft:** freigegebene aktive Baustelle
+- **Abrechnung:** operativ beendet, kaufmännisch offen
+- **Abgeschlossen:** operativ und kaufmännisch abgeschlossen
+- **Archiviert:** geprüft aus aktiven Sichten entfernt und weiterhin recherchierbar
+
+Diese Statuswerte sind von konkreter Projektphase, Angebotsstatus, Rechnungsstatus und Activity-Status getrennt.
+
 ## 1. Kundenanfrage
 
 Eine Anfrage wird mit Kunde, Ansprechpartner, Baustelle, gewünschter Leistung, Terminrahmen und Herkunft erfasst. Unvollständige Angaben werden als offene Punkte sichtbar. Ergebnis ist eine qualifizierte Anfrage oder eine nachvollziehbare Absage.
@@ -14,9 +29,9 @@ Vertrieb oder Bauleitung bewertet Passung, Dringlichkeit und Informationsbedarf.
 
 Leistungen, Mengen, Material, Personal, Logistik, Standzeit, Risiken und Sonderbedingungen werden bewertet. Das Angebot referenziert seine Quellen. Änderungen erzeugen Versionen. Ergebnis ist ein freigegebenes Angebot.
 
-## 4. Auftrag und Projektanlage
+## 4. Auftrag und Projektübernahme
 
-Mit Annahme werden Kunden-, Baustellen-, Leistungs- und Angebotsdaten in ein Projekt überführt. Verantwortliche, Zieltermine und Module werden festgelegt. Die digitale Baustellenakte beginnt; es erfolgt keine Doppelerfassung.
+Mit Annahme wird derselbe Vorgang verbindlich als Projekt übernommen. Kunden-, Baustellen-, Leistungs- und Angebotsdaten bleiben unter derselben Identität referenziert. Verantwortliche und Zieltermine werden festgelegt; es entsteht keine neue Akte und keine Doppelerfassung.
 
 ## 5. Arbeitsvorbereitung
 
@@ -56,7 +71,11 @@ Freigegebenes Schlussaufmaß, Nachträge, Abschläge und Vertragsdaten bilden di
 
 ## 14. Projektabschluss und Archiv
 
-Das Projekt wird erst abgeschlossen, wenn Aktivitäten, Material, Dokumente, Nachträge, Abrechnung und offene Aufgaben geklärt sind. Die Baustellenakte wird als zusammenhängende Historie archiviert und bleibt entsprechend Aufbewahrung, Rollen und Datenschutz auffindbar.
+Das Projekt wird erst abgeschlossen, wenn operative Arbeit sowie verpflichtende kaufmännische Punkte geklärt sind. Abschluss archiviert nicht automatisch.
+
+Vor Archivierung werden mindestens operative Arbeiten, erforderlicher Abbau, finales Aufmaß, Nachträge, Erstellung/Versand/Zahlung der Schlussrechnung und relevante Reklamationen geprüft. Offene Pflichtpunkte führen zum Ergebnis **Archivierung noch nicht möglich** und werden konkret benannt. Sind alle Kriterien erfüllt, lautet das Ergebnis **Bereit zum Archivieren**. Erst eine separate berechtigte Entscheidung archiviert den Vorgang.
+
+Die Baustellenakte bleibt als zusammenhängende Historie über Kunde, Adresse, Projektname, Jahr, Angebots- und Rechnungsnummer sowie Bauleiter auffindbar. Archivierung ist keine Löschung.
 
 ## Durchgängige Kontrollpunkte
 

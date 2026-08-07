@@ -1,43 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/app-shell";
-import { readProjects } from "@/lib/local-storage";
-import type { Project } from "@/types/project";
+import { deleteProjectData, readProjects, writeProjects } from "@/lib/local-storage";
+import type { Project, ProjectPhase, ProjectService } from "@/types/project";
+
+const phases: ProjectPhase[] = ["Auftrag bestätigt", "Vorbereitung", "Aufbau", "Nutzung", "Umbau", "Abbau", "Abrechnung", "abgeschlossen", "archiviert"];
+const services: ProjectService[] = ["Fassadengerüst", "Dacharbeiten", "Schutzdach", "Sonderkonstruktion", "Innenraumgerüst"];
+type Filter = "Alle" | "Vorbereitung" | "Aufbau" | "Nutzung" | "Umbau" | "Abbau" | "Abrechnung" | "abgeschlossen" | "archiviert";
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>();
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setProjects(readProjects()), 0);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  return (
-    <AppShell>
-      <div className="relative min-h-screen overflow-hidden text-white">
-        <div className="pointer-events-none absolute inset-0"><div className="absolute left-[-12rem] top-[-10rem] h-[28rem] w-[28rem] rounded-full bg-cyan-500/10 blur-3xl" /><div className="absolute bottom-[-14rem] right-[-10rem] h-[34rem] w-[34rem] rounded-full bg-violet-600/10 blur-3xl" /></div>
-        <div className="relative mx-auto min-h-screen w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-10 xl:px-12">
-          <header className="border-b border-white/[0.07] pb-6">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-cyan-300">Baustellen und Projekte</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Projekte</h1>
-            <p className="mt-2 text-sm text-slate-500">Alle vorhandenen Projekte öffnen und im Detail bearbeiten.</p>
-          </header>
-
-          <section className="py-8" aria-label="Projektübersicht">
-            {projects === undefined ? <EmptyState text="Projekte werden geladen …" /> : projects.length === 0 ? <EmptyState text="Noch keine Projekte vorhanden." /> : <div className="grid gap-4 lg:grid-cols-2">{projects.map((project) => <ProjectCard key={project.id} project={project} />)}</div>}
-          </section>
-        </div>
-      </div>
-    </AppShell>
-  );
+  const [all, setAll] = useState<Project[]>(); const [filter, setFilter] = useState<Filter>("Alle"); const [editing, setEditing] = useState<Project | "new" | null>(null);
+  useEffect(() => { const timer = setTimeout(() => setAll(readProjects()), 0); return () => clearTimeout(timer); }, []);
+  const projects = (all ?? []).filter((p) => p.recordKind === "project"); const visible = projects.filter((p) => filter === "Alle" || p.phase === filter);
+  function persist(p: Project) { const next = [p, ...(all ?? []).filter((x) => x.id !== p.id)]; writeProjects(next); setAll(next); }
+  function archive(p: Project) { persist({ ...p, phase: "archiviert", status: "Archiviert" }); }
+  function remove(p: Project) { if (!confirm("Projekt wirklich löschen?\n\nAlle lokalen Projektdaten werden dauerhaft gelöscht. Archivieren ist die sichere Alternative.")) return; deleteProjectData(p.id); setAll((all ?? []).filter((x) => x.id !== p.id)); }
+  return <AppShell><div className="mx-auto min-h-screen max-w-[1480px] px-5 py-9 sm:px-8 lg:px-10"><header className="flex flex-col justify-between gap-5 border-b border-white/10 pb-7 sm:flex-row sm:items-end"><div><p className="text-xs uppercase tracking-[.18em] text-cyan-300">Ausführung · verbindliche Planung</p><h1 className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">Projekte</h1><p className="mt-2 text-sm text-slate-500">Ausschließlich bestätigte Aufträge und laufende Baustellen.</p></div><button onClick={() => setEditing("new")} className="rounded-xl border border-white/15 px-5 py-3 text-sm transition hover:border-cyan-300/30 hover:bg-white/[.05]">Projekt direkt anlegen</button></header><nav className="my-6 flex gap-2 overflow-x-auto">{(["Alle", ...phases.slice(1)] as Filter[]).map((x) => <button key={x} onClick={() => setFilter(x)} className={`shrink-0 rounded-full px-4 py-2 text-sm transition ${filter === x ? "bg-cyan-300 text-slate-950" : "bg-white/5 text-slate-400 hover:bg-white/[.08]"}`}>{x}</button>)}</nav>{all === undefined ? <Empty text="Projekte werden geladen …" /> : visible.length === 0 ? <Empty text="Keine bestätigten Projekte in dieser Phase." /> : <div className="grid gap-5 lg:grid-cols-2">{visible.map((p) => <article key={p.id} className="flex min-h-[320px] flex-col rounded-2xl border border-cyan-300/10 bg-white/[.04] p-6 transition duration-200 hover:-translate-y-0.5 hover:border-cyan-300/25 hover:bg-white/[.055]"><div className="flex justify-between gap-4"><div><p className="text-xs font-semibold tracking-[.15em] text-cyan-300">PROJEKT / BAUSTELLE</p><Link href={`/projects/${p.id}`} className="mt-2 block text-xl font-semibold transition hover:text-cyan-200">{p.name}</Link></div><span className={`h-fit rounded-full border px-4 py-2 text-sm font-semibold ${phaseTone(p.phase)}`}>{p.phase}</span></div><p className="mt-5 text-sm text-slate-400">{[p.address, `${p.postalCode} ${p.city}`.trim()].filter(Boolean).join(", ")}</p><p className="mt-1 text-sm text-slate-500">Kunde: {p.customer || "noch offen"}</p>{p.offer && <p className="mt-3 text-sm text-violet-300">Entstanden aus Angebot {p.offer.number}</p>}<div className="mt-auto pt-6"><div className="rounded-xl border border-white/[.07] bg-black/10 p-3"><div className="flex justify-between gap-4 text-xs"><span className="font-medium text-slate-400">Projektfortschritt</span><span className="text-slate-600">wird vorbereitet</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[.07]"><div className="h-full w-0 rounded-full bg-cyan-300" /></div></div><div className="mt-4 flex flex-wrap gap-2 border-t border-white/10 pt-4"><button onClick={() => setEditing(p)} className="rounded-lg bg-white/[.06] px-3 py-2 text-xs transition hover:bg-white/[.1]">Bearbeiten</button>{p.phase !== "archiviert" && <button onClick={() => archive(p)} className="rounded-lg bg-amber-400/10 px-3 py-2 text-xs text-amber-300 transition hover:bg-amber-400/[.16]">Archivieren</button>}<button onClick={() => remove(p)} className="rounded-lg bg-red-400/10 px-3 py-2 text-xs text-red-300 transition hover:bg-red-400/[.16]">Löschen</button></div></div></article>)}</div>}</div>{editing && <ProjectForm value={editing} onClose={() => setEditing(null)} onSave={(p) => { persist(p); setEditing(null); }} />}</AppShell>;
 }
-
-function ProjectCard({ project }: { project: Project }) {
-  return <Link href={`/projects/${project.id}`} aria-label={`Projekt ${project.name} öffnen`} className="group rounded-2xl border border-white/10 bg-white/[0.045] p-6 shadow-xl shadow-black/10 transition hover:-translate-y-0.5 hover:border-cyan-300/30 hover:bg-white/[0.06] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-medium uppercase tracking-[0.16em] text-cyan-300">{project.type}</p><h2 className="mt-2 text-xl font-semibold text-slate-100 transition group-hover:text-cyan-100">{project.name}</h2></div><span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs text-emerald-300">{project.status}</span></div><p className="mt-5 text-sm text-slate-400">{project.address}{project.postalCode || project.city ? ` · ${project.postalCode} ${project.city}` : ""}</p>{project.customer && <p className="mt-2 text-sm text-slate-500">Kunde: {project.customer}</p>}<div className="mt-5 flex flex-wrap gap-2">{project.services.length ? project.services.map((service) => <span key={service} className="rounded-lg bg-white/[0.055] px-2.5 py-1 text-xs text-slate-400">{service}</span>) : <span className="text-xs text-slate-600">Keine Leistung ausgewählt</span>}</div><span className="mt-6 inline-flex items-center gap-2 text-xs font-medium text-cyan-300">Projekt öffnen <span aria-hidden="true">→</span></span></Link>;
-}
-
-function EmptyState({ text }: { text: string }) {
-  return <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.025] px-6 py-14 text-center text-sm text-slate-500">{text}</div>;
-}
+function phaseTone(phase?: ProjectPhase) { if (phase && ["Auftrag bestätigt", "Vorbereitung"].includes(phase)) return "border-cyan-300/20 bg-cyan-400/10 text-cyan-200"; if (phase === "Aufbau") return "border-amber-300/20 bg-amber-400/10 text-amber-200"; if (phase === "Nutzung") return "border-emerald-300/20 bg-emerald-400/10 text-emerald-200"; if (phase === "Umbau") return "border-violet-300/20 bg-violet-400/10 text-violet-200"; if (phase === "Abbau") return "border-orange-300/20 bg-orange-400/10 text-orange-200"; if (phase === "Abrechnung") return "border-blue-300/20 bg-blue-400/10 text-blue-200"; return "border-slate-300/15 bg-slate-400/10 text-slate-300"; }
+function ProjectForm({ value, onClose, onSave }: { value: Project | "new"; onClose: () => void; onSave: (p: Project) => void }) { const existing = value !== "new"; const [p, setP] = useState<Project>(existing ? value : { id: crypto.randomUUID(), createdAt: new Date().toISOString(), name: "", customer: "", address: "", postalCode: "", city: "", type: "Sonstiges", services: [], status: "Aktiv", recordKind: "project", phase: "Auftrag bestätigt", inquiryStatus: "neu" }); function submit(e: FormEvent) { e.preventDefault(); onSave(p); } return <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 p-4"><form onSubmit={submit} className="mx-auto my-8 max-w-2xl rounded-3xl border border-white/10 bg-[#0b111e] p-6"><div className="flex justify-between"><h2 className="text-2xl font-semibold">{existing ? "Projekt bearbeiten" : "Projekt direkt anlegen"}</h2><button type="button" onClick={onClose}>✕</button></div><div className="mt-6 grid gap-4 sm:grid-cols-2"><Input label="Projektname *" value={p.name} set={(name) => setP({ ...p, name })} /><Input label="Kunde" value={p.customer} set={(customer) => setP({ ...p, customer })} /><Input label="Ansprechpartner" value={p.contactName ?? ""} set={(contactName) => setP({ ...p, contactName })} /><Input label="Adresse *" value={p.address} set={(address) => setP({ ...p, address })} /><Input label="PLZ" value={p.postalCode} set={(postalCode) => setP({ ...p, postalCode })} /><Input label="Ort" value={p.city} set={(city) => setP({ ...p, city })} /><label className="text-sm text-slate-300">Phase<select value={p.phase} onChange={(e) => setP({ ...p, phase: e.target.value as ProjectPhase })} className="mt-2 min-h-12 w-full rounded-xl border border-white/10 bg-[#070b14] px-3">{phases.map((x) => <option key={x}>{x}</option>)}</select></label><label className="sm:col-span-2 text-sm text-slate-300">Leistungen<div className="mt-2 flex flex-wrap gap-2">{services.map((s) => <button type="button" key={s} onClick={() => setP({ ...p, services: p.services.includes(s) ? p.services.filter((x) => x !== s) : [...p.services, s] })} className={`rounded-lg px-3 py-2 text-xs ${p.services.includes(s) ? "bg-cyan-300 text-slate-950" : "bg-white/5"}`}>{s}</button>)}</div></label></div><div className="mt-7 flex justify-end gap-3"><button type="button" onClick={onClose}>Abbrechen</button><button className="rounded-xl bg-cyan-300 px-5 py-3 font-semibold text-slate-950">Speichern</button></div></form></div>; }
+function Input({ label, value, set }: { label: string; value: string; set: (v: string) => void }) { return <label className="text-sm text-slate-300">{label}<input required={label.includes("*")} value={value} onChange={(e) => set(e.target.value)} className="mt-2 min-h-12 w-full rounded-xl border border-white/10 bg-[#070b14] px-3" /></label>; }
+function Empty({ text }: { text: string }) { return <div className="rounded-2xl border border-dashed border-white/15 px-6 py-14 text-center text-sm text-slate-500">{text}</div>; }

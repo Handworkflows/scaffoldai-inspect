@@ -1,5 +1,7 @@
 # MVP Roadmap
 
+> **Historische MVP-Planung:** Die nachfolgende frühe Phasenstruktur bleibt als Entstehungskontext erhalten. Für die aktuelle Informationsarchitektur gilt [EPIC-002 – Projektlebenszyklus, Buchhaltung & Archivierung](epics/EPIC-002-project-lifecycle-accounting-archive.md). Sie revidiert EPIC-001 und erhält Projekte sowie Buchhaltung als direkte Hauptbereiche.
+
 ## Phase 1 – Grundlage
 
 - Projektstruktur vorbereiten

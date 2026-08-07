@@ -1,52 +1,62 @@
-# Rollenmodell
+# Verbindliches Rollen- und Berechtigungsmodell
 
-Das Rollenmodell beschreibt fachliche Verantwortung und Informationsbedarf. Konkrete Berechtigungen werden später nach dem Prinzip der minimal notwendigen Rechte abgeleitet. Eine Person kann abhängig von Betrieb und Projekt mehrere Rollen besitzen.
+- **Stand:** 7. August 2026
+- **Status:** Verbindlich gemäß W-006
+- **Quelle:** [W-006 – Rollen & Berechtigungen](../workshops/W-006-roles-permissions/SUMMARY.md)
 
-## Monteur
+## Grundsatz
 
-- **Verantwortlichkeiten:** sichere Ausführung zugewiesener Arbeiten, Rückmeldung von Fortschritt, Mängeln, Materialbedarf und Behinderungen.
-- **Benötigte Informationen:** heutige Baustelle, Aufgabe, Montageanweisung, Gefährdungsbeurteilung, Ansprechpartner, Material und aktuelle Änderungen.
-- **Benötigte Funktionen:** mobile Aufgabenansicht, Fotos, kurze Notizen/Sprache, Checklisten, Mangel- und Behinderungsmeldung, Abschlussmeldung.
+Ein Vorgang existiert genau einmal. Rollen steuern Sichtbarkeit, Bearbeitung, Zuweisung, Freigabe und Verantwortung auf derselben Datenbasis. Sie erzeugen keine rollenbezogenen Kopien.
 
-## Vorarbeiter
+Eine Person kann mehrere Rollen besitzen. Rechte gelten nur in ihrer fachlichen Reichweite: eigen, zugewiesen, eigene Kolonne, Organisationseinheit oder Unternehmen. Zweckbindung und Datenschutz können die Reichweite weiter einschränken.
 
-- **Verantwortlichkeiten:** operative Führung der Kolonne, Vollständigkeit und Qualität der Ausführung, Sicherheitskontrolle, Tagesrückmeldung und Materialabgleich.
-- **Benötigte Informationen:** Projektumfang, Plan und Anweisungen, Kolonne, Material, Termine, Risiken, offene Punkte und Freigaben.
-- **Benötigte Funktionen:** Arbeitsablauf für Aktivitäten, Tagesplanung, Checklisten, Foto-/Spracherfassung, Materialbedarf, Fortschritt, Abweichung, Übergabe und Hinweise für Vorarbeiter.
+Jede Person besitzt einen persönlichen Arbeitsplatz als Sicht auf ihre autorisierten Informationen. Der Arbeitsplatz erweitert keine Rechte: Nachrichten-Vorschauen, Zähler, Suche, Kalender und Benachrichtigungen unterliegen denselben Rollen- und Reichweitengrenzen wie ihre Quelle.
 
-## Bauleiter
+## Kernrollen
 
-- **Verantwortlichkeiten:** technischer und organisatorischer Projekterfolg, Abstimmung mit Kunde und Baustelle, Aufmaß, Änderungen, Nachträge, Dokumentation und Freigaben.
-- **Benötigte Informationen:** vollständige Baustellenakte, Auftrag, Termine, Aktivitäten, Ressourcen, Material, Dokumente, Risiken, Kosten- und Leistungsstand.
-- **Benötigte Funktionen:** Projektsteuerung, Baustellentermine, Änderungen und Nachträge, Aufmaß, Dokumentenübersicht, Aufgaben, Verlauf sowie Hinweise für Bauleitung und Sicherheit.
+| Rolle | Primäre Verantwortung | Standardreichweite | Wesentliche Grenze |
+|---|---|---|---|
+| Geschäftsführer / Chef | Unternehmenssteuerung, Kapazität, Ergebnis und Risiken | Unternehmen | Vollzugriff ersetzt keine technische Qualifikation |
+| Bauleiter | technische und organisatorische Vorgangssteuerung | zugewiesene Vorgänge | kaufmännische Endfreigabe nur bei Zusatzrecht |
+| Büro / Innendienst | organisatorische Entlastung, Kontakt und Termine | Organisationseinheit | keine technische oder sicherheitsrelevante Freigabe |
+| Disposition | Ressourcen-, Einsatz- und Verfügbarkeitsplanung | Organisation/Unternehmen | keine Gerüst-, Montage- oder Sicherheitsfreigabe |
+| Vorarbeiter | operative Führung, Material und Tagesabschluss | eigene Kolonne/Einsätze | keine Angebots- oder Rechnungsfreigabe |
+| Mitarbeiter / Monteur | sichere Ausführung und Rückmeldung | eigene Person/Arbeit | keine kaufmännischen Unternehmensdaten |
 
-## Lager
+Vorbereitete Zusatzrollen sind Lager, Kalkulation, Buchhaltung und Administrator. Administratoren verwalten das System, erhalten dadurch aber keine fachliche Entscheidungskompetenz.
 
-- **Verantwortlichkeiten:** korrekte Bestände, Kommissionierung, Ausgabe, Rücknahme, Prüfung und Bereitstellung.
-- **Benötigte Informationen:** Materialbedarf, Reservierungen, Prioritäten, Abhol-/Liefertermine, Fahrzeuge, Rückläufe und Schäden.
-- **Benötigte Funktionen:** Lagerübersicht, Materiallisten, Reservierung, Scan-/Fotoerfassung, Be- und Entladung, Bestandskorrektur und Materialhinweise.
+## Berechtigungskategorien
 
-## Disposition
+- **ansehen**
+- **erstellen**
+- **bearbeiten**
+- **zuweisen**
+- **freigeben**
+- **archivieren**
+- **löschen**
+- **administrieren**
 
-- **Verantwortlichkeiten:** konfliktarme Einsatzplanung von Kolonnen, Mitarbeitern, Fahrzeugen, Material und Transporten.
-- **Benötigte Informationen:** Projektprioritäten, Aktivitäten, Zeitfenster, Qualifikationen, Verfügbarkeiten, Fahrzeugkapazitäten, Lagerstatus und Störungen.
-- **Benötigte Funktionen:** Planungskalender, Ressourcenansicht, Einsatzplanung, Konfliktwarnungen, Umplanung, Baustellenlogistik und Dispositionshinweise.
+Freigeben ist eine eigenständige fachliche Handlung. Archivieren und Löschen bleiben getrennt. Kritische Aktionen sind auditpflichtig.
 
-## Geschäftsführer
+## Verbindliche Grenzen
 
-- **Verantwortlichkeiten:** Unternehmenssteuerung, Prioritäten, Kapazität, Liquidität, Ergebnis und Risikorahmen.
-- **Benötigte Informationen:** Pipeline, Projektportfolio, Leistungs- und Abrechnungsstand, Nachträge, Forderungen, Materialbindung, Auslastung und Risiken.
-- **Benötigte Funktionen:** Unternehmensübersicht, Kennzahlen, Drill-down zur Quelle, Forecasts, Frühwarnungen und Hinweise für die Geschäftsführung.
+- Büro und Disposition treffen keine technische oder sicherheitsrelevante Freigabe.
+- Vorarbeiter und Mitarbeiter dürfen sicherheitswidrige Arbeit stoppen und Abweichungen melden; die übergeordnete fachliche Freigabe bleibt bei autorisierten Rollen.
+- Administration begründet keine fachliche Freigabekompetenz.
+- Brain und Automatisierung treffen keine menschlich erforderlichen Entscheidungen.
+- Vertretungen sind befristet, zweckgebunden und nachvollziehbar.
+- Historische Entscheidungen behalten handelnde Person und damalige wirksame Rolle.
 
-## Administrator
+## Rollenbezogene Arbeitsweise
 
-- **Verantwortlichkeiten:** sicherer organisatorischer Betrieb, Benutzer, Rollen, Stammdaten, Vorlagen, Module, Integrationen und Nachvollziehbarkeit.
-- **Benötigte Informationen:** Organisation, Lizenz-/Modulstatus, Nutzer und Rollen, Konfiguration, Protokolle und technische Zustände.
-- **Benötigte Funktionen:** Benutzer- und Rollenverwaltung, Modulaktivierung, Workflow-/Dokumentvorlagen, Stammdaten, Integrationen, Export und Audit.
+- **Heute** ist eine gefilterte Sicht auf dieselben Activities und unterscheidet sich nach Rolle, Verantwortung und Reichweite.
+- **Kalender** zeigt dieselben verknüpften Activities, Einsätze und Abwesenheiten; er ist keine eigene Datenwelt.
+- **Buchhaltung** ist ein eigener Arbeitsbereich, aber keine eigene Datenwelt; Rechnungen, Nachträge und Forderungen bleiben mit demselben Vorgang verknüpft.
+- **Telefonnotizen**, **Materialanforderungen** und **Tagesabschlüsse** sind Activities desselben Vorgangs.
+- **Kommunikation** kann Activities erzeugen oder aktualisieren, führt aber keinen eigenen Workflow.
+- **E-Mail-Entwürfe und automatische Zuordnungsvorschläge** benötigen menschliche Bestätigung; externe Kommunikation wird nicht automatisch versendet.
+- Urlaub, Krankheit und Qualifikationen wirken auf die Verfügbarkeit; nur notwendige Informationen werden für Planung offengelegt.
 
-## Rollengrenzen
+## Normative Detailregelung
 
-- Sicherheits- und Freigabeentscheidungen dürfen nur eindeutig verantwortlichen Rollen zugeordnet werden.
-- Geschäftsführung erhält verdichtete Informationen und kann bei Bedarf bis zur autorisierten Quelle navigieren.
-- Administration ermöglicht Prozesse, trifft aber keine fachlichen Projektentscheidungen.
-- Brain-Module handeln stets im sichtbaren Daten- und Verantwortungsrahmen der jeweiligen Rolle.
+Die vollständige Berechtigungsmatrix, Freigabeverantwortung, Prozesse für Telefonnotiz, Materialanforderung und Tagesabschluss sowie Auditregeln stehen in [W-006](../workshops/W-006-roles-permissions/SUMMARY.md). Neue Tickets müssen Rolle, Aktion, Reichweite, Verantwortung, Freigabe und Auditverhalten explizit benennen.

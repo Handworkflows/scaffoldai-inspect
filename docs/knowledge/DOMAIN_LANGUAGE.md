@@ -3,7 +3,7 @@
 - **Version:** 1.0
 - **Stand:** 7. August 2026
 - **Status:** Verbindlich
-- **Quelle:** W-001 bis W-004, bestehende Anwendung und Produktarchitektur
+- **Quelle:** W-001 bis W-005, bestehende Anwendung und Produktarchitektur
 - **Zweck:** gemeinsame Fachsprache für Produkt, UX, Architektur, Tickets und Dokumentation
 
 ## Verbindlichkeit
@@ -39,6 +39,31 @@ Die bevorzugte Bezeichnung wird in neuen Dokumenten und Oberflächen verwendet. 
 - **Begründung:** „Heute“ entspricht der Frage eines Bauleiters und ist für alle operativen Rollen unmittelbar verständlich. „Dashboard“ beschreibt eine Softwaredarstellung, keine Arbeitssituation.
 - **Rollenbewertung:** für Bauleiter, Vorarbeiter und Disposition sehr natürlich; für Gerüstbauer verständlich; Geschäftsführung benötigt zusätzlich eine eigene Unternehmensübersicht.
 
+## Arbeitsplatz
+
+- **Bevorzugter Name:** Arbeitsplatz
+- **Alternativen:** persönlicher Arbeitsplatz
+- **Vermeiden:** Inbox, Communication Hub, persönliches Dashboard
+- **Definition:** rollenabhängige persönliche Sicht auf Kommunikation, Activities, Aufgaben, Kalender, Wiedervorlagen, Benachrichtigungen und Hinweise.
+- **Einsatzbereich:** Hauptnavigation und persönliche Arbeitsorganisation.
+- **Abgrenzung:** Heute zeigt nur die aktuell priorisierte Arbeit. Arbeitsplatz umfasst Eingang, Bestand und Planung, erzeugt aber keine eigenen Kopien.
+
+## Kommunikation
+
+- **Bevorzugter Name:** Kommunikation, bei bekanntem Kanal konkreter E-Mail, Telefonnotiz oder Rückrufbitte
+- **Alternativen:** Nachricht für ein einzelnes Kommunikationsobjekt
+- **Vermeiden:** Chat als Sammelbegriff, wenn keine Echtzeitunterhaltung gemeint ist
+- **Definition:** fachliche Quelle und Austauschkontext, aus dem Activities entstehen oder aktualisiert werden können.
+- **Abgrenzung:** Kommunikation ist kein eigener Workflow. „Gelesen“ oder „beantwortet“ bedeutet nicht automatisch fachlich erledigt.
+
+## Benachrichtigung
+
+- **Bevorzugter Name:** Benachrichtigung
+- **Alternativen:** Hinweis, wenn Inhalt und Handlungsbezug im Vordergrund stehen
+- **Vermeiden:** Aufgabe, Activity oder Warnung als pauschales Synonym
+- **Definition:** persönlicher Verweis auf eine relevante Änderung, Zuweisung, Frist oder Antwort.
+- **Abgrenzung:** Lesestatus einer Benachrichtigung verändert weder Activity noch Vorgang.
+
 ## Unternehmensübersicht
 
 - **Bevorzugter Name:** Unternehmensübersicht
@@ -48,13 +73,24 @@ Die bevorzugte Bezeichnung wird in neuen Dokumenten und Oberflächen verwendet. 
 - **Einsatzbereich:** Geschäftsführung und Roadmap.
 - **Begründung:** grenzt die strategische Sicht klar von „Heute“ ab und vermeidet den Sammelbegriff Dashboard.
 
+## Vorgang
+
+- **Bevorzugter Fachbegriff:** Vorgang
+- **Nutzerbegriff:** im jeweiligen Arbeitsbereich Anfrage, Angebot, Einsatzvorbereitung, Projekt oder Baustelle
+- **Alternativen:** Geschäftsvorgang in erklärendem Kontext
+- **Vermeiden:** Vorgang als Synonym für eine einzelne Aktivität
+- **Definition:** stabile fachliche Identität vom ersten Kundenkontakt bis zum Archiv, deren Zustände und Sichten ohne Datenkopie durch die Unternehmensbereiche wandern.
+- **Einsatzbereich:** Architektur, bereichsübergreifende Referenzen, Lebenszyklus und Übergaben.
+- **Begründung:** Der Begriff verbindet Vertrieb, Vorbereitung und Betrieb, ohne eine noch unverbindliche Anfrage fälschlich Projekt zu nennen.
+- **Abgrenzung:** Eine Aktivität ist konkrete Arbeit innerhalb eines Vorgangs. Ein Projekt ist der verbindliche Zustand nach Angebotsannahme und Übernahme.
+
 ## Projekt
 
 - **Bevorzugter Name:** Projekt
 - **Alternativen:** Auftrag, wenn tatsächlich der beauftragte Leistungsumfang gemeint ist
 - **Vermeiden:** Baustelle als vollständiges Synonym
-- **Definition:** organisatorische und kaufmännische Klammer für Kunde, Auftrag, Baustelle, Leistungen, Verantwortlichkeiten und alle zugehörigen Aktivitäten.
-- **Einsatzbereich:** Navigation „Projekte“, Projektakte, Stammdaten, kaufmännische und organisatorische Zusammenhänge.
+- **Definition:** verbindlicher Zustand eines Vorgangs nach Angebotsannahme und Projektübernahme mit Auftrag, Leistungen, Verantwortlichkeiten und verbindlicher Planungswirkung.
+- **Einsatzbereich:** Projektakte, Einsatzvorbereitung, Betrieb sowie kaufmännische und organisatorische Zusammenhänge.
 - **Begründung:** Im Alltag gebräuchlich, besonders für Bauleitung, Disposition und Geschäftsführung. Gerüstbauer sprechen häufiger von der Baustelle; deshalb muss im operativen Kontext die Baustelle prominent sein.
 - **Abgrenzung:** Ein Projekt kann mehrere Orte oder Abschnitte betreffen. Die Baustelle ist der physische Ausführungsort.
 
@@ -82,8 +118,8 @@ Die bevorzugte Bezeichnung wird in neuen Dokumenten und Oberflächen verwendet. 
 
 - **Bevorzugter Fachbegriff:** Aktivität
 - **Nutzerbegriff:** konkreter Aktivitätstyp, beispielsweise Montage, Rückruf, Kontrolle oder Aufmaß
-- **Alternativen:** Vorgang, Arbeitsschritt
-- **Vermeiden:** Activity in deutschsprachigen Oberflächen; Aufgabe als Synonym für jede Aktivität
+- **Alternativen:** Arbeitsschritt
+- **Vermeiden:** Activity in deutschsprachigen Oberflächen; Aufgabe oder Vorgang als Synonym für jede Aktivität
 - **Definition:** fachlich relevanter, zeitlich einordenbarer Arbeitsvorgang mit Zweck, Verantwortlichkeit, Status, Zeitbezug und Ergebnis.
 - **Einsatzbereich:** Domänenmodell, Architektur, übergreifende Listen und Filter.
 - **Begründung:** „Aktivität“ ist rollenübergreifend verständlich und weit genug für Telefonat, Lieferung, Montage und Freigabe. Im Alltag ist der konkrete Typ natürlicher als der Oberbegriff.
@@ -326,9 +362,14 @@ Die bevorzugte Bezeichnung wird in neuen Dokumenten und Oberflächen verwendet. 
 | Gerüstbauer | Gerüstbaumonteur, Monteur | ausgebildete beziehungsweise ausführende Fachkraft im Gerüstbau. „Monteur“ darf eine betriebliche Einsatzrolle bezeichnen, ist aber weniger branchenspezifisch. |
 | Vorarbeiter | Kolonnenführer, wenn betrieblich üblich | führt die Kolonne operativ und verantwortet sichere, vollständige Tagesausführung und Rückmeldung. |
 | Bauleiter | Projektleiter nur bei tatsächlich gleicher betrieblicher Verantwortung | verantwortet technische und organisatorische Projektsteuerung, Abstimmung, Aufmaß, Änderungen und Freigaben. |
+| Büro / Innendienst | kaufmännischer Innendienst, wenn betrieblich üblich | organisatorische Rolle für Kontakte, Telefonnotizen, Termine, Wiedervorlagen und Unterlagen; keine automatische fachliche Freigabekompetenz. |
 | Disponent | Einsatzplaner | Person, die Einsätze und Ressourcen disponiert. Disposition bezeichnet den Fachbereich beziehungsweise die Tätigkeit. |
 | Lagerverantwortlicher | Lagerist | verantwortliche Rolle für Bestand, Bereitstellung, Rücknahme und Prüfung; „Lager“ bezeichnet Ort oder Fachbereich. |
 | Geschäftsführer | Geschäftsführung als Organisationseinheit | verantwortet Unternehmenssteuerung; „Geschäftsführung“ bezeichnet Rolle oder Gremium, nicht eine konkrete Person. |
+| Mitarbeiter / Monteur | Gerüstbauer, wenn die fachliche Qualifikation gemeint ist | ausführende Einsatzrolle mit Zugriff auf eigene Arbeit und notwendige Unterlagen; keine kaufmännische Rolle. |
+| Kalkulation | Kalkulator als Personenrolle | bereitet Kalkulationsgrundlagen und Angebote vor; Freigaberechte werden ausdrücklich zugewiesen. |
+| Buchhaltung | kaufmännische Sachbearbeitung, wenn zutreffend | bearbeitet Rechnungs-, Zahlungs- und Forderungsstände im erforderlichen Nachweisumfang. |
+| Administrator | Systemadministrator | verwaltet Benutzer, Rollen und Konfiguration; besitzt dadurch keine fachliche Freigabekompetenz. |
 
 ## Interne Produkt- und Architekturbegriffe
 

@@ -1,5 +1,7 @@
 # W-002 – ScaffoldAI Operating System Workshop
 
+> **Architekturhinweis:** Die in W-002 vorgeschlagene Navigation war ein Zwischenstand. Sie wurde durch die sechs verbindlichen Arbeitsbereiche aus [W-005](../W-005-workflow-operating-system/SUMMARY.md) und deren Umsetzung in [EPIC-001](../../epics/EPIC-001-navigation-workflow.md) abgelöst. Die Activity- und Heute-Prinzipien aus W-002 bleiben gültig.
+
 - **Stand:** 7. August 2026
 - **Zweck:** Bedienkonzept für den ereignisorientierten Arbeitstag eines Bauleiters
 - **Betrachtet:** Dashboard, Projektübersicht, Projektdetail, Baustellenbesuche und vorhandene Produktkonzepte

@@ -38,15 +38,17 @@ function parseArray<T>(value: string | null): T[] {
 }
 
 function normalizeProject(project: Omit<Project, "status"> & { status?: Project["status"] }): Project {
-  return { ...project, status: project.status ?? "Neu" };
+  const status = project.status ?? "Neu";
+  return { ...project, status, recordKind: project.recordKind ?? "project", phase: project.phase ?? (status === "Archiviert" ? "archiviert" : status === "Abgeschlossen" ? "abgeschlossen" : "Auftrag bestätigt"), inquiryStatus: project.inquiryStatus ?? "neu" };
 }
 
 function projectToCore(project: Project): CoreProject {
-  return { id: project.id, masterData: { name: project.name, projectType: project.type, services: project.services, createdAt: project.createdAt }, address: { street: project.address, postalCode: project.postalCode, city: project.city }, customer: { name: project.customer, contactName: project.contactName, phone: project.contactPhone, email: project.contactEmail }, status: project.status };
+  const { recordKind, phase, inquiryStatus, requestedDate, openQuestions, roughEffort, specialConstructions, permits, estimatedMaterial, estimatedCrewCount, offer } = project;
+  return { id: project.id, masterData: { name: project.name, projectType: project.type, services: project.services, createdAt: project.createdAt }, address: { street: project.address, postalCode: project.postalCode, city: project.city }, customer: { name: project.customer, contactName: project.contactName, phone: project.contactPhone, email: project.contactEmail }, status: project.status, lifecycle: { recordKind, phase, inquiryStatus, requestedDate, openQuestions, roughEffort, specialConstructions, permits, estimatedMaterial, estimatedCrewCount, offer } };
 }
 
 function projectFromCore(project: CoreProject): Project {
-  return { id: project.id, name: project.masterData.name, type: project.masterData.projectType, services: project.masterData.services, createdAt: project.masterData.createdAt, address: project.address.street, postalCode: project.address.postalCode, city: project.address.city, customer: project.customer.name, contactName: project.customer.contactName, contactPhone: project.customer.phone, contactEmail: project.customer.email, status: project.status };
+  return normalizeProject({ id: project.id, name: project.masterData.name, type: project.masterData.projectType, services: project.masterData.services, createdAt: project.masterData.createdAt, address: project.address.street, postalCode: project.address.postalCode, city: project.address.city, customer: project.customer.name, contactName: project.customer.contactName, contactPhone: project.customer.phone, contactEmail: project.customer.email, status: project.status, ...project.lifecycle });
 }
 
 function legacyPhotoSize(dataUrl: string): number {
@@ -104,6 +106,11 @@ export function readProjectCore(): ProjectCoreStore {
       writeProjectCore(migrated);
       return migrated;
     }
+    if (parsed.schemaVersion === 3) {
+      const migrated: ProjectCoreStore = { ...parsed, schemaVersion: PROJECT_CORE_SCHEMA_VERSION };
+      writeProjectCore(migrated);
+      return migrated;
+    }
     return migrateLegacyStore();
   } catch {
     return migrateLegacyStore();
@@ -120,6 +127,24 @@ export function readProjects(): Project[] {
 
 export function writeProjects(projects: Project[]) {
   writeProjectCore({ ...readProjectCore(), projects: projects.map((project) => projectToCore(normalizeProject(project))) });
+}
+
+export function deleteProjectData(projectId: string) {
+  const store = readProjectCore();
+  writeProjectCore({
+    ...store,
+    projects: store.projects.filter((item) => item.id !== projectId),
+    visits: store.visits.filter((item) => item.projectId !== projectId),
+    photos: store.photos.filter((item) => item.projectId !== projectId),
+    notes: store.notes.filter((item) => item.projectId !== projectId),
+    checklistEntries: store.checklistEntries.filter((item) => item.projectId !== projectId),
+    workflowStates: store.workflowStates.filter((item) => item.projectId !== projectId),
+    documents: store.documents.filter((item) => item.projectId !== projectId),
+    measurements: store.measurements.filter((item) => item.projectId !== projectId),
+    materialEntries: store.materialEntries.filter((item) => item.projectId !== projectId),
+    projectCockpits: store.projectCockpits.filter((item) => item.projectId !== projectId),
+    activities: store.activities.filter((item) => item.projectId !== projectId),
+  });
 }
 
 export function readProjectCockpit(projectId: string): ProjectCockpitData {

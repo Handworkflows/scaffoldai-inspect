@@ -43,6 +43,55 @@ export const activityReadinessLevels = [
 
 export type ActivityReadiness = (typeof activityReadinessLevels)[number];
 
+export interface ActivityBuildingSide {
+  id: string;
+  name: string;
+  length: string;
+  height: string;
+  area: string;
+}
+
+export type ActivityDetailValue = string | boolean | string[] | ActivityBuildingSide[];
+
+export interface ActivityAttachment {
+  id: string;
+  fileName: string;
+  mediaType: string;
+  fileSize: number;
+  dataUrl: string;
+  createdAt: string;
+}
+
+export interface ActivityChecklistItem {
+  id: string;
+  label: string;
+  checked: boolean;
+}
+
+export interface ActivityComment {
+  id: string;
+  text: string;
+  author: string;
+  createdAt: string;
+}
+
+export interface ActivityOpenItem {
+  id: string;
+  text: string;
+  completed: boolean;
+  createdAt: string;
+  completedAt?: string;
+}
+
+export type ActivityHistoryKind = "erstellt" | "bearbeitet" | "status" | "abgeschlossen" | "checkliste" | "kommentar" | "offener-punkt";
+
+export interface ActivityHistoryEntry {
+  id: string;
+  kind: ActivityHistoryKind;
+  text: string;
+  createdAt: string;
+}
+
 export interface Activity {
   id: string;
   projectId: string;
@@ -57,6 +106,12 @@ export interface Activity {
   endedAt: string | null;
   responsibleId: string | null;
   result: string | null;
+  details?: Record<string, ActivityDetailValue>;
+  attachments?: ActivityAttachment[];
+  checklist?: ActivityChecklistItem[];
+  comments?: ActivityComment[];
+  openItems?: ActivityOpenItem[];
+  history?: ActivityHistoryEntry[];
   createdAt: string;
   updatedAt: string;
 }

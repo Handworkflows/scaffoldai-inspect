@@ -211,6 +211,12 @@ Die Liste ist erweiterbar. Ein neuer Typ ist nur erforderlich, wenn sich Zweck, 
 
 ## 5. Lebenszyklus
 
+### Activity-Templates
+
+Die verbindliche Struktur für typabhängige Felder, Checklisten, Dokumentanforderungen, Leistungs-Overlays und Folgeactivity-Vorschläge definiert [W-008 – Activity Templates](../workshops/W-008-activity-templates/SUMMARY.md). Templates konfigurieren eine Activity bei ihrer Vorbereitung; sie sind weder Activity noch eigener Workflow und besitzen keinen operativen Status.
+
+Mehrere Gerüstleistungen werden additiv kombiniert. Pflichtgrad, Bedingung, Blocker und Readiness bleiben getrennt. Eine Template-Version darf bestehende Activities nicht still überschreiben und keine sicherheitskritische Freigabe erteilen.
+
 ### Fachliche Status
 
 | Status | Bedeutung |
@@ -442,7 +448,7 @@ Jede Ableitung unterscheidet Fakten, Regeln, Annahmen und Empfehlung. Sie nennt 
 ## 15. Fachliche Architekturregeln
 
 1. Die Activity Engine ist die einzige fachliche Quelle für operative Vorgänge.
-2. Jede Aktivität besitzt genau einen Projektkontext.
+2. Jede Aktivität besitzt genau einen Vorgangskontext; dieser kann vor Projektübernahme noch unverbindlich sein.
 3. Spezialisierte Module erweitern Aktivitäten oder referenzieren sie; sie duplizieren keine Status-, Verantwortlichkeits- oder Timeline-Logik.
 4. Ein Baustellenbesuch ist eine Aktivitätsart, kein paralleles Grundmodell.
 5. Timeline und „Heute“ sind Sichten auf Aktivitäten, keine eigenen Arbeitsbestände.
@@ -456,6 +462,9 @@ Jede Ableitung unterscheidet Fakten, Regeln, Annahmen und Empfehlung. Sie nennt 
 13. Automatisch vorbereitete Inhalte bleiben als Entwurf oder Empfehlung erkennbar.
 14. Verbindliche Entscheidungen bleiben bei autorisierten Menschen.
 15. Neue Module benötigen eine begründete Ausnahme, wenn sie ein eigenes Prozessmodell statt einer Aktivitätserweiterung einführen.
+16. Kommunikation ist Quelle oder Kontext einer Aktivität, aber kein eigener Workflow; E-Mail-, Telefon- und Rückrufzustände ersetzen keinen Activity-Status.
+17. Automatisch erkannte Zuordnungen, Termine, Aufgaben oder Antwortentwürfe bleiben bis zur menschlichen Bestätigung Vorschläge.
+18. Arbeitsplatz, Heute, Kalender und Benachrichtigungen referenzieren Activities und ihre Quellen, statt eigene Arbeitsbestände zu führen.
 
 ## 16. Fachliche Qualitätskriterien
 
@@ -477,7 +486,7 @@ Die Activity Engine ist fachlich tragfähig, wenn:
 - Welche Aktivitätstypen bilden den kleinsten sinnvollen ersten Katalog?
 - Welche Statusprofile gelten je Typfamilie?
 - Welche Readiness-Kriterien sind je Typ zwingende Blocker?
-- Welche Rollen dürfen welchen Aktivitätstyp abschließen oder freigeben?
+- Welche betriebsspezifischen Einschränkungen ergänzen die in [W-006](../workshops/W-006-roles-permissions/SUMMARY.md) beschlossene Rollen-, Reichweiten- und Freigabematrix je Aktivitätstyp?
 - Wann wird eine Korrektur, wann eine neue Folgeaktivität verwendet?
 - Welche wiederkehrenden Aktivitäten werden als Serie geplant?
 - Wie werden unternehmensspezifische Typen ergänzt, ohne gemeinsame Begriffe zu verlieren?
@@ -486,6 +495,8 @@ Die Activity Engine ist fachlich tragfähig, wenn:
 ## Verknüpfte Grundlagen
 
 - [W-003 – Activity Engine Workshop](../workshops/W-003-activity-engine/SUMMARY.md)
+- [W-008 – Activity Templates](../workshops/W-008-activity-templates/SUMMARY.md)
+- [W-006 – Rollen & Berechtigungen](../workshops/W-006-roles-permissions/SUMMARY.md)
 - [W-002 – Operating System](../workshops/W-002-operating-system/SUMMARY.md)
 - [Fachliches Domänenmodell](../architecture/DOMAIN_MODEL.md)
 - [Projektlebenszyklus](../workflows/PROJECT_LIFECYCLE.md)
